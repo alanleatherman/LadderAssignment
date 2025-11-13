@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct LadderApp: App {
+    @State private var environment = AppEnvironment.bootstrap()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            FeatsHomeView()
+                .inject(environment.appContainer)
+                .preferredColorScheme(.dark)
         }
     }
 }
