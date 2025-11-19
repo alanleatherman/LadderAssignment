@@ -10,78 +10,99 @@ import Creed_Lite
 
 struct FeatsHomeView: View {
     @Environment(\.container) private var container
-    @State private var showFeatDetail = false
+    @Environment(\.appState) private var appState
+    @State private var selectedFeat: Feat?
 
     private var interactor: FeatsInteractor {
         container.interactors.feats
     }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    if interactor.isLoading {
-                        loadingView
-                    } else if let error = interactor.error {
-                        errorView(error)
-                    } else if let monthlyFeats = interactor.monthlyFeats {
-                        featsContent(monthlyFeats)
-                    }
-                }
-                .padding()
+        ZStack {
+            Color.black.ignoresSafeArea()
+
+            if interactor.isLoading {
+                loadingView
+            } else if let error = interactor.error {
+                errorView(error)
+            } else if let monthlyFeats = interactor.monthlyFeats {
+                pagingContent(monthlyFeats)
             }
-            .navigationTitle("Feats of Strength")
-            .task {
-                await interactor.loadMonthlyFeats()
+        }
+        .task {
+            await interactor.loadMonthlyFeats()
+        }
+        .onChange(of: appState.completionTimestamp) { _, _ in
+            Task {
+                await interactor.loadUserData()
             }
-            .refreshable {
-                await interactor.refreshFeats()
-            }
+        }
+        .sheet(item: $selectedFeat) { feat in
+            FeatDetailView(feat: feat)
         }
     }
 
     @ViewBuilder
-    private func featsContent(_ monthlyFeats: MonthlyFeats) -> some View {
-        LazyVStack(alignment: .leading, spacing: 16) {
-            // Month header
-            MonthHeaderView(
-                title: monthlyFeats.title,
-                subtitle: monthlyFeats.subtitle
-            )
+    private func pagingContent(_ monthlyFeats: MonthlyFeats) -> some View {
+        GeometryReader { geometry in
+            ScrollView(.vertical) {
+                LazyVStack(spacing: 0) {
+                    ForEach(Array(monthlyFeats.feats.enumerated()), id: \.element.id) { index, feat in
+                        ZStack(alignment: .topLeading) {
+                            // Full screen card
+                            FeatCardView(
+                                feat: feat,
+                                isFeatured: index == 0,
+                                userBestScore: interactor.getUserBest(for: feat.id),
+                                selectedFeat: $selectedFeat
+                            )
 
-            // Challenge of the month (featured)
-            if let featuredFeat = monthlyFeats.feats.first {
-                FeatCardView(feat: featuredFeat,
-                             isFeatured: true) {
-                    interactor.selectFeat(featuredFeat)
-                    showFeatDetail = true
-                }
-            }
+                            // Header overlay only on first page
+                            if index == 0 {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Feats of Strength")
+                                        .font(.title.bold())
+                                        .foregroundStyle(.white)
 
-            // Other feats
-            ForEach(monthlyFeats.feats.dropFirst(), id: \.id) { feat in
-                FeatCardView(feat: feat, isFeatured: false) {
-                    interactor.selectFeat(feat)
-                    showFeatDetail = true
+                                    Text(monthlyFeats.subtitle)
+                                        .font(.headline)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 28)
+                                .padding(.top, max(geometry.safeAreaInsets.top, 50) + 16)
+                                .background(
+                                    LinearGradient(
+                                        colors: [.black.opacity(0.4), .clear],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                    .frame(height: 160)
+                                    .frame(maxWidth: .infinity)
+                                    .offset(y: -20)
+                                )
+                            }
+                        }
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                    }
                 }
+                .scrollTargetLayout()
             }
+            .scrollTargetBehavior(.paging)
+            .scrollIndicators(.hidden)
         }
-        .sheet(isPresented: $showFeatDetail) {
-            if let feat = interactor.selectedFeat {
-                FeatDetailView(feat: feat)
-            }
-        }
+        .ignoresSafeArea()
     }
 
     private var loadingView: some View {
         VStack(spacing: 20) {
-            ForEach(0..<3, id: \.self) { _ in
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.gray.opacity(0.2))
-                    .frame(height: 200)
-                    .shimmer()
-            }
+            ProgressView()
+                .scaleEffect(1.5)
+                .tint(.white)
+            Text("Loading feats...")
+                .foregroundStyle(.secondary)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func errorView(_ error: FeatsError) -> some View {
@@ -102,38 +123,5 @@ struct FeatsHomeView: View {
             .buttonStyle(.borderedProminent)
         }
         .padding(40)
-    }
-}
-
-// Shimmer effect for loading
-extension View {
-    func shimmer() -> some View {
-        modifier(ShimmerModifier())
-    }
-}
-
-struct ShimmerModifier: ViewModifier {
-    @State private var phase: CGFloat = 0
-
-    func body(content: Content) -> some View {
-        content
-            .overlay(
-                LinearGradient(
-                    colors: [
-                        .clear,
-                        .white.opacity(0.3),
-                        .clear
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .offset(x: phase * 300)
-                .mask(content)
-            )
-            .onAppear {
-                withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
-                    phase = 1
-                }
-            }
     }
 }

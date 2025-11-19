@@ -14,29 +14,51 @@ import Observation
 @Observable
 final class FeatsInteractor {
     @ObservationIgnored
-    @Dependency(\.featsClient) private var featsClient
-    
+    private let repository: FeatsRepositoryProtocol
+
     var monthlyFeats: MonthlyFeats?
-    var selectedFeat: Feat?
     var isLoading: Bool = false
     var error: FeatsError?
-    
+    var userBestScores: [String: UserBestScore] = [:]
+    var completedFeatIds: Set<String> = []
+
+    init(repository: FeatsRepositoryProtocol) {
+        self.repository = repository
+    }
+
     func loadMonthlyFeats() async {
         isLoading = true
         error = nil
         defer { isLoading = false }
-        
+
         do {
-            monthlyFeats = try await featsClient.listMonthlyFeats()
+            monthlyFeats = try await repository.getMonthlyFeats()
+            await loadUserData()
         } catch {
             self.error = .loadFailed(error)
         }
     }
-    
-    func selectFeat(_ feat: Feat) {
-        selectedFeat = feat
+
+    func loadUserData() async {
+        guard let feats = monthlyFeats?.feats else { return }
+
+        // Load user's best scores for all feats
+        for feat in feats {
+            if let bestScore = await repository.getUserBestScore(for: feat.id) {
+                userBestScores[feat.id.rawValue] = bestScore
+                completedFeatIds.insert(feat.id.rawValue)
+            }
+        }
     }
-    
+
+    func getUserBest(for featId: Feat.Id) -> UserBestScore? {
+        return userBestScores[featId.rawValue]
+    }
+
+    func hasCompleted(_ featId: Feat.Id) -> Bool {
+        return completedFeatIds.contains(featId.rawValue)
+    }
+
     func refreshFeats() async {
         await loadMonthlyFeats()
     }

@@ -7,15 +7,52 @@
 
 import SwiftUI
 import Creed_Lite
+import AVKit
 
 struct FeatCardView: View {
     let feat: Feat
     let isFeatured: Bool
-    let onTap: () -> Void
+    let userBestScore: UserBestScore?
+    @Binding var selectedFeat: Feat?
+
+    @State private var player: AVPlayer?
+    @State private var loopObserver: NSObjectProtocol?
+    @State private var isVideoLoading = true
 
     var body: some View {
-        Button(action: onTap) {
-            ZStack(alignment: .bottomLeading) {
+        Button {
+            selectedFeat = feat
+        } label: {
+            GeometryReader { geometry in
+                ZStack(alignment: .bottomLeading) {
+                    backgroundMedia(geometry: geometry)
+                    gradientOverlays
+                    contentOverlay(geometry: geometry)
+                }
+            }
+        }
+        .buttonStyle(ScaleButtonStyle())
+    }
+
+    // MARK: - Subviews
+
+    @ViewBuilder
+    private func backgroundMedia(geometry: GeometryProxy) -> some View {
+        Group {
+            if let player = player {
+                VideoPlayer(player: player)
+                    .disabled(true)
+                    .onAppear {
+                        player.play()
+                    }
+                    .overlay {
+                        if isVideoLoading {
+                            Color.gray.opacity(0.3)
+                                .shimmer()
+                                .transition(.opacity)
+                        }
+                    }
+            } else {
                 AsyncImage(url: feat.imageURL, transaction: Transaction(animation: .easeInOut(duration: 0.3))) { phase in
                     switch phase {
                     case .empty:
@@ -28,6 +65,8 @@ struct FeatCardView: View {
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
+                            .frame(width: geometry.size.width, height: geometry.size.height)
+                            .clipped()
                             .transition(.opacity)
                     case .failure:
                         Color.gray.opacity(0.2)
@@ -40,92 +79,210 @@ struct FeatCardView: View {
                         Color.gray.opacity(0.2)
                     }
                 }
-                .frame(height: 300)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-
-                // Color tint overlay
-                LinearGradient(
-                    colors: [
-                        Color.ladderPrimary.opacity(0.3),
-                        .clear,
-                        .black.opacity(0.5)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-
-                // Bottom gradient for text readability
-                LinearGradient(
-                    colors: [.clear, .black.opacity(0.8)],
-                    startPoint: .center,
-                    endPoint: .bottom
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-
-                // Content overlay
-                VStack(alignment: .leading, spacing: 8) {
-                    if isFeatured {
-                        HStack(spacing: 4) {
-                            Image(systemName: "star.fill")
-                                .foregroundStyle(.black)
-                            Text("Challenge of the Month")
-                                .font(.caption.bold())
-                                .foregroundStyle(.black)
-                        }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.ladderPrimary)
-                        .clipShape(Capsule())
-                    }
-
-                    Text(feat.name.uppercased())
-                        .font(.title2.bold())
-                        .foregroundStyle(.white)
-
-                    Text(feat.description)
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.9))
-                        .lineLimit(2)
-
-                    HStack {
-                        // Top 3 users
-                        HStack(spacing: -8) {
-                            ForEach(feat.top3Users.prefix(3), id: \.id) { user in
-                                AsyncImage(url: user.imageURL, transaction: Transaction(animation: .easeInOut(duration: 0.2))) { phase in
-                                    if let image = phase.image {
-                                        image
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .transition(.opacity)
-                                    } else {
-                                        Circle()
-                                            .fill(Color.gray.opacity(0.3))
-                                    }
-                                }
-                                .frame(width: 32, height: 32)
-                                .clipShape(Circle())
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.black, lineWidth: 2)
-                                )
-                            }
-                        }
-
-                        Text("\(feat.completionCount) Completions")
-                            .font(.caption)
-                            .foregroundStyle(.white.opacity(0.8))
-
-                        Spacer()
-
-                        Image(systemName: "chevron.right")
-                            .foregroundStyle(.white)
-                    }
+                .onAppear {
+                    setupPlayer()
                 }
-                .padding()
             }
         }
-        .buttonStyle(ScaleButtonStyle())
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onDisappear {
+            cleanupPlayer()
+        }
+    }
+
+    private var gradientOverlays: some View {
+        ZStack {
+            // Color tint overlay
+            LinearGradient(
+                colors: [
+                    Color.ladderPrimary.opacity(0.3),
+                    .clear,
+                    .black.opacity(0.5)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            // Bottom gradient for text readability
+            LinearGradient(
+                colors: [.clear, .black.opacity(0.8)],
+                startPoint: .center,
+                endPoint: .bottom
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func contentOverlay(geometry: GeometryProxy) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            topBadges(geometry: geometry)
+            Spacer()
+            featInfo
+            bottomInfo
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 16)
+        .padding(.bottom, 32)
+    }
+
+    @ViewBuilder
+    private func topBadges(geometry: GeometryProxy) -> some View {
+        HStack {
+            if isFeatured {
+                HStack(spacing: 4) {
+                    Image(systemName: "star.fill")
+                        .foregroundStyle(.black)
+                    Text("Challenge of the Month")
+                        .font(.caption.bold())
+                        .foregroundStyle(.black)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.ladderPrimary)
+                .clipShape(Capsule())
+            }
+
+            Spacer()
+
+            if let userBest = userBestScore {
+                VStack(alignment: .trailing, spacing: 4) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(Color.ladderPrimary)
+                        Text("\(userBest.repCount) PR")
+                            .font(.caption.bold())
+                            .foregroundStyle(.white)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.black.opacity(0.6))
+                    .clipShape(Capsule())
+
+                    Text("Tap to beat your record")
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.8))
+                }
+            }
+        }
+        .padding(.top, isFeatured ? max(geometry.safeAreaInsets.top, 50) + 67 : max(geometry.safeAreaInsets.top, 50))
+    }
+
+    private var featInfo: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(feat.name.uppercased())
+                .font(.title2.bold())
+                .foregroundStyle(.white)
+
+            Text(feat.description)
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.9))
+                .lineLimit(2)
+        }
+    }
+
+    private var bottomInfo: some View {
+        HStack {
+            userAvatars
+
+            Text("\(feat.completionCount) Completions")
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.8))
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .foregroundStyle(.white)
+        }
+    }
+
+    private var userAvatars: some View {
+        HStack(spacing: -8) {
+            ForEach(feat.top3Users.prefix(3), id: \.id) { user in
+                AsyncImage(url: user.imageURL) { phase in
+                    switch phase {
+                    case .empty:
+                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    case .failure:
+                        Circle()
+                            .fill(Color.gray.opacity(0.4))
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(.white.opacity(0.6))
+                            )
+                    @unknown default:
+                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                    }
+                }
+                .frame(width: 32, height: 32)
+                .clipShape(Circle())
+                .overlay(
+                    Circle()
+                        .stroke(Color.black, lineWidth: 2)
+                )
+            }
+        }
+    }
+
+    // MARK: - Helper Methods
+
+    private func setupPlayer() {
+        isVideoLoading = true
+        let newPlayer = AVPlayer(url: feat.videoURL)
+        newPlayer.isMuted = true
+
+        player = newPlayer
+
+        // Setup looping
+        loopObserver = NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: newPlayer.currentItem,
+            queue: .main
+        ) { [weak newPlayer] _ in
+            newPlayer?.seek(to: .zero)
+            newPlayer?.play()
+        }
+
+        // Observe when video starts playing
+        _ = NotificationCenter.default.addObserver(
+            forName: AVPlayerItem.newAccessLogEntryNotification,
+            object: newPlayer.currentItem,
+            queue: .main
+        ) { _ in
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(500))
+                withAnimation {
+                    self.isVideoLoading = false
+                }
+            }
+        }
+
+        // Also hide loading after a timeout (fallback)
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2))
+            withAnimation {
+                self.isVideoLoading = false
+            }
+        }
+
+        // Auto-play
+        newPlayer.play()
+    }
+
+    private func cleanupPlayer() {
+        if let observer = loopObserver {
+            NotificationCenter.default.removeObserver(observer)
+            loopObserver = nil
+        }
+
+        player?.pause()
+        player = nil
     }
 }
 

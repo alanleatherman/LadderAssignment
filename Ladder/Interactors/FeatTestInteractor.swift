@@ -1,5 +1,5 @@
 //
-//  TestExecutionInteractor.swift
+//  FeatTestInteractor.swift
 //  Ladder
 //
 //  Created by Alan Leatherman on 11/12/25.
@@ -11,19 +11,38 @@ import Creed_Lite
 
 @MainActor
 @Observable
-final class TestExecutionInteractor {
+final class FeatTestInteractor {
 
     var repCount: Int = 0
     var isActive: Bool = false
     var startTime: Date?
     var elapsedTime: TimeInterval = 0
     var phase: TestPhase = .ready
+    var pausedElapsedTime: TimeInterval = 0
 
     @ObservationIgnored private var timerTask: Task<Void, Never>?
     @ObservationIgnored private var countdownTask: Task<Void, Never>?
-    
+    @ObservationIgnored private let repository: FeatsRepositoryProtocol
+    @ObservationIgnored private let appState: AppState
+
     var feat: Feat?
-    let testDuration: TimeInterval = 300 // 5 minutes
+
+    init(repository: FeatsRepositoryProtocol, appState: AppState) {
+        self.repository = repository
+        self.appState = appState
+    }
+    var testDuration: TimeInterval {
+        // Extract duration from feat name, fallback to 5 minutes
+        guard let feat = feat else { return 300 }
+        let name = feat.name.uppercased()
+        if let match = name.range(of: #"\d+"#, options: .regularExpression) {
+            let numberString = String(name[match])
+            if let minutes = Int(numberString) {
+                return TimeInterval(minutes * 60)
+            }
+        }
+        return 300 // Default 5 minutes
+    }
     
     enum TestPhase: Equatable {
         case ready
@@ -59,7 +78,9 @@ final class TestExecutionInteractor {
         isActive = true
         startTime = Date()
         repCount = 0
-        
+        pausedElapsedTime = 0
+        elapsedTime = 0
+
         startTimer()
     }
     
@@ -86,12 +107,15 @@ final class TestExecutionInteractor {
     func pauseTest() {
         phase = .paused
         isActive = false
+        pausedElapsedTime = elapsedTime
         timerTask?.cancel()
     }
-    
+
     func resumeTest() {
         phase = .active
         isActive = true
+        // Adjust start time to account for paused duration
+        startTime = Date().addingTimeInterval(-pausedElapsedTime)
         startTimer()
     }
     
@@ -99,19 +123,30 @@ final class TestExecutionInteractor {
         phase = .complete(repCount: repCount)
         isActive = false
         timerTask?.cancel()
-        
-        // In real implementation, submit to server via FeatsClient
-        // For now, just complete locally
+
+        // Save completion to database
+        Task {
+            guard let feat = feat else { return }
+            try? await repository.saveFeatCompletion(
+                featId: feat.id,
+                repCount: repCount,
+                duration: elapsedTime
+            )
+
+            // Notify via AppState that a completion was saved
+            await appState.notifyFeatCompleted(featId: feat.id.rawValue)
+        }
     }
     
     func reset() {
         timerTask?.cancel()
         countdownTask?.cancel()
-        
+
         repCount = 0
         isActive = false
         startTime = nil
         elapsedTime = 0
+        pausedElapsedTime = 0
         phase = .ready
     }
     

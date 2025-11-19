@@ -6,63 +6,77 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct AppContainer {
     let interactors: Interactors
+    let repository: FeatsRepositoryProtocol
     let hapticEngine: HapticEngine
     let repPhysics: RepCounterPhysics
+    let appState: AppState
 
-    init(interactors: Interactors = .live,
+    init(interactors: Interactors,
+         repository: FeatsRepositoryProtocol,
+         appState: AppState,
          hapticEngine: HapticEngine = HapticEngine(),
          repPhysics: RepCounterPhysics = RepCounterPhysics()) {
         self.interactors = interactors
+        self.repository = repository
+        self.appState = appState
         self.hapticEngine = hapticEngine
         self.repPhysics = repPhysics
     }
 
-    static var preview: AppContainer {
-        return MainActor.assumeIsolated {
-            let featsInteractor = FeatsInteractor()
-            let leaderboardInteractor = LeaderboardInteractor()
-            let testExecutionInteractor = TestExecutionInteractor()
+    @MainActor
+    static func create(with modelContext: ModelContext) -> AppContainer {
+        let repository = FeatsRepository(modelContext: modelContext)
+        let appState = AppState()
+        let interactors = Interactors.live(repository: repository, appState: appState)
 
-            let interactors = Interactors(
-                feats: featsInteractor,
-                leaderboard: leaderboardInteractor,
-                testExecution: testExecutionInteractor
-            )
+        return AppContainer(interactors: interactors, repository: repository, appState: appState)
+    }
 
-            return AppContainer(interactors: interactors)
+    nonisolated static var preview: AppContainer {
+        MainActor.assumeIsolated {
+            let container = try! ModelContainer(for: CachedFeat.self, UserBestScore.self, FeatCompletion.self)
+            let modelContext = ModelContext(container)
+            return create(with: modelContext)
         }
     }
 
-    static var stub: AppContainer {
-        return MainActor.assumeIsolated {
-            return AppContainer(interactors: .stub)
+    nonisolated static var stub: AppContainer {
+        MainActor.assumeIsolated {
+            let container = try! ModelContainer(for: CachedFeat.self, UserBestScore.self, FeatCompletion.self)
+            let modelContext = ModelContext(container)
+            return create(with: modelContext)
         }
     }
 
     struct Interactors {
         let feats: FeatsInteractor
         let leaderboard: LeaderboardInteractor
-        let testExecution: TestExecutionInteractor
+        let featTest: FeatTestInteractor
 
-        static var live: Self {
-            MainActor.assumeIsolated {
-                .init(
-                    feats: FeatsInteractor(),
-                    leaderboard: LeaderboardInteractor(),
-                    testExecution: TestExecutionInteractor()
-                )
-            }
+        @MainActor
+        static func live(repository: FeatsRepositoryProtocol, appState: AppState) -> Self {
+            .init(
+                feats: FeatsInteractor(repository: repository),
+                leaderboard: LeaderboardInteractor(),
+                featTest: FeatTestInteractor(repository: repository, appState: appState)
+            )
         }
 
-        static var stub: Self {
+        nonisolated static var stub: Self {
             MainActor.assumeIsolated {
-                .init(
-                    feats: FeatsInteractor(),
+                let container = try! ModelContainer(for: CachedFeat.self, UserBestScore.self, FeatCompletion.self)
+                let modelContext = ModelContext(container)
+                let repository = FeatsRepository(modelContext: modelContext)
+                let appState = AppState()
+
+                return .init(
+                    feats: FeatsInteractor(repository: repository),
                     leaderboard: LeaderboardInteractor(),
-                    testExecution: TestExecutionInteractor()
+                    featTest: FeatTestInteractor(repository: repository, appState: appState)
                 )
             }
         }
@@ -83,5 +97,6 @@ extension View {
         return self
             .environment(\.container, container)
             .environment(\.interactors, container.interactors)
+            .environment(\.appState, container.appState)
     }
 }

@@ -25,13 +25,24 @@ struct LeaderboardRowView: View {
             }
 
             // Avatar
-            AsyncImage(url: placement.imageURL, transaction: Transaction(animation: .easeInOut(duration: 0.2))) { phase in
-                if let image = phase.image {
+            AsyncImage(url: placement.imageURL) { phase in
+                switch phase {
+                case .empty:
+                    Circle()
+                        .fill(Color.gray.opacity(0.3))
+                case .success(let image):
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .transition(.opacity)
-                } else {
+                case .failure:
+                    Circle()
+                        .fill(Color.gray.opacity(0.4))
+                        .overlay(
+                            Image(systemName: "person.fill")
+                                .font(.body)
+                                .foregroundStyle(.white.opacity(0.6))
+                        )
+                @unknown default:
                     Circle()
                         .fill(Color.gray.opacity(0.3))
                 }

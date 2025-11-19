@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftData
 import OSLog
 
 @MainActor
@@ -35,7 +36,7 @@ struct AppEnvironment {
 }
 
 extension AppEnvironment {
-    static func bootstrap(_ optionOverride: AppEnvironment.Option? = nil) -> AppEnvironment {
+    static func bootstrap(modelContext: ModelContext, _ optionOverride: AppEnvironment.Option? = nil) -> AppEnvironment {
         let option = optionOverride ?? AppEnvironment.current
         let logger = Logger(subsystem: "com.ladder.app", category: "AppEnvironment")
         logger.info("Current environment: \(option.rawValue)")
@@ -47,35 +48,32 @@ extension AppEnvironment {
 
         switch option {
         case .tests:
-            return createTestEnvironment()
+            return createTestEnvironment(modelContext: modelContext)
         case .preview:
-            return createPreviewEnvironment()
+            return createPreviewEnvironment(modelContext: modelContext)
         case .production:
-            return createProductionEnvironment()
+            return createProductionEnvironment(modelContext: modelContext)
         }
     }
 
-    private static func createTestEnvironment() -> AppEnvironment {
+    private static func createTestEnvironment(modelContext: ModelContext) -> AppEnvironment {
         return AppEnvironment(
             option: .tests,
-            appContainer: .stub
+            appContainer: .create(with: modelContext)
         )
     }
 
-    private static func createPreviewEnvironment() -> AppEnvironment {
+    private static func createPreviewEnvironment(modelContext: ModelContext) -> AppEnvironment {
         return AppEnvironment(
             option: .preview,
-            appContainer: .preview
+            appContainer: .create(with: modelContext)
         )
     }
 
-    private static func createProductionEnvironment() -> AppEnvironment {
-        let interactors = AppContainer.Interactors.live
-        let container = AppContainer(interactors: interactors)
-
+    private static func createProductionEnvironment(modelContext: ModelContext) -> AppEnvironment {
         return AppEnvironment(
             option: .production,
-            appContainer: container
+            appContainer: .create(with: modelContext)
         )
     }
 }

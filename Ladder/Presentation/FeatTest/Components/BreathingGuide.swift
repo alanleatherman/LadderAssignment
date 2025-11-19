@@ -10,6 +10,8 @@ import SwiftUI
 struct BreathingGuide: View {
     @State private var scale: CGFloat = 1.0
     @State private var breatheIn = true
+    @State private var timer: Timer?
+    @State private var animationTask: Task<Void, Never>?
 
     var body: some View {
         VStack(spacing: 16) {
@@ -37,15 +39,31 @@ struct BreathingGuide: View {
         .onAppear {
             startBreathingAnimation()
         }
+        .onDisappear {
+            stopBreathingAnimation()
+        }
     }
 
     private func startBreathingAnimation() {
+        // Reset state
+        scale = 1.0
+        breatheIn = true
+
+        // Start animation
         withAnimation(.easeInOut(duration: 2.5).repeatForever(autoreverses: true)) {
             scale = 1.5
         }
 
-        Timer.scheduledTimer(withTimeInterval: 2.5, repeats: true) { _ in
+        // Start text toggle timer
+        timer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: true) { _ in
             breatheIn.toggle()
         }
+    }
+
+    private func stopBreathingAnimation() {
+        timer?.invalidate()
+        timer = nil
+        animationTask?.cancel()
+        animationTask = nil
     }
 }

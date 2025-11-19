@@ -1,5 +1,5 @@
 //
-//  TestExecutionView.swift
+//  FeatTestView.swift
 //  Ladder
 //
 //  Created by Alan Leatherman on 11/12/25.
@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-struct TestExecutionView: View {
+struct FeatTestView: View {
     @Environment(\.container) private var container
     @Environment(\.dismiss) private var dismiss
 
-    private var interactor: TestExecutionInteractor {
-        container.interactors.testExecution
+    private var interactor: FeatTestInteractor {
+        container.interactors.featTest
     }
 
     private var hapticEngine: HapticEngine {
@@ -75,17 +75,17 @@ struct TestExecutionView: View {
                 Text(feat.name.uppercased())
                     .font(.title.bold())
                     .multilineTextAlignment(.center)
+
+                Text("You'll have \(feat.durationText) to complete as many reps as possible")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+            } else {
+                Text("Ready to start?")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
             }
-
-            Text("Ready to start?")
-                .font(.headline)
-                .foregroundStyle(.secondary)
-
-            Text("You'll have 5 minutes to complete as many reps as possible")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
         }
     }
 
