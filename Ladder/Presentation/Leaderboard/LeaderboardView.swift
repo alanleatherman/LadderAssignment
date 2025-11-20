@@ -27,7 +27,6 @@ struct LeaderboardView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Time filter
             TimeFilterView(
                 selectedFilter: interactor.timeFilter,
                 onFilterChange: { filter in
@@ -72,7 +71,6 @@ struct LeaderboardView: View {
                 }
 
                 VStack(spacing: 1) {
-                    // Header
                     leaderboardHeader
 
                     // Show placements with user highlighted if present, or insert user inline
@@ -94,7 +92,6 @@ struct LeaderboardView: View {
 
                             // Adjust rank if user was inserted before this placement
                             let adjustedRank = userInsertedBefore ? placement.placement + 1 : placement.placement
-
                             LeaderboardRowView(
                                 placement: placement,
                                 isCurrentUser: isCurrentUser,
@@ -135,17 +132,14 @@ struct LeaderboardView: View {
     @ViewBuilder
     private func userLeaderboardRow(rank: Int, repCount: Int) -> some View {
         HStack {
-            // Rank movement indicator
             Color.clear
                 .frame(width: 20)
 
-            // Rank number
             Text("\(rank)")
                 .font(.headline)
                 .foregroundStyle(.primary)
                 .frame(width: 40, alignment: .leading)
 
-            // User avatar placeholder
             Circle()
                 .fill(Color.ladderPrimary.opacity(0.3))
                 .frame(width: 40, height: 40)
@@ -155,14 +149,12 @@ struct LeaderboardView: View {
                         .foregroundStyle(Color.ladderPrimary)
                 )
 
-            // Name
             Text("You")
                 .font(.body)
                 .foregroundStyle(.primary)
 
             Spacer()
 
-            // Rep count
             Text("\(repCount)")
                 .font(.headline)
                 .foregroundStyle(.secondary)
@@ -174,7 +166,6 @@ struct LeaderboardView: View {
 
     @ViewBuilder
     private func userPositionCard(userBest: UserBestScore, leaderboard: FeatLeaderboard) -> some View {
-        // Find user's rank - count how many have more reps than user
         let betterThanUser = leaderboard.placements.filter { $0.totalRepCount > userBest.repCount }
         let userRank = betterThanUser.count + 1
         let toBeat = betterThanUser.count

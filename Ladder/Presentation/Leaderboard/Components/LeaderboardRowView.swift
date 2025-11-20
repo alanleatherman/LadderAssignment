@@ -21,7 +21,6 @@ struct LeaderboardRowView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // Rank with movement indicator
             HStack(spacing: 4) {
                 movementIndicator
 
@@ -31,7 +30,6 @@ struct LeaderboardRowView: View {
                     .frame(width: 40, alignment: .trailing)
             }
 
-            // Avatar
             AsyncImage(url: placement.imageURL, transaction: Transaction(animation: .easeInOut(duration: 0.3))) { phase in
                 switch phase {
                 case .empty:
@@ -65,14 +63,12 @@ struct LeaderboardRowView: View {
                     )
             )
 
-            // Name
             Text(placement.name)
                 .font(.body.weight(isCurrentUser ? .bold : .regular))
                 .foregroundStyle(isCurrentUser ? .green : .primary)
 
             Spacer()
 
-            // Rep count
             Text("\(placement.totalRepCount)")
                 .font(.headline.monospacedDigit())
                 .foregroundStyle(.secondary)

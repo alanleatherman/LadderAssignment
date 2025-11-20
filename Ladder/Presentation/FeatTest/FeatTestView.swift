@@ -341,10 +341,8 @@ struct FeatTestView: View {
             return nil
         }
 
-        // Count how many users have more reps than the current user
         let betterThanUser = leaderboard.placements.filter { $0.totalRepCount > repCount }
         let rank = betterThanUser.count + 1
-
         return rank
     }
 }

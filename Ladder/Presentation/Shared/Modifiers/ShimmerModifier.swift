@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-// Shimmer effect for loading
 extension View {
     func shimmer() -> some View {
         modifier(ShimmerModifier())
