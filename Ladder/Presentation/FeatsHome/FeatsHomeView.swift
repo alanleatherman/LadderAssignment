@@ -13,7 +13,7 @@ struct FeatsHomeView: View {
     @Environment(\.appState) private var appState
     @State private var selectedFeat: Feat?
 
-    private var interactor: FeatsInteractor {
+    private var interactor: FeatsInteractorProtocol {
         container.interactors.feats
     }
 

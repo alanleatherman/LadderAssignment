@@ -13,11 +13,11 @@ struct LeaderboardView: View {
     @Environment(\.appState) private var appState
     let feat: Feat
 
-    private var interactor: LeaderboardInteractor {
+    private var interactor: LeaderboardInteractorProtocol {
         container.interactors.leaderboard
     }
 
-    private var featsInteractor: FeatsInteractor {
+    private var featsInteractor: FeatsInteractorProtocol {
         container.interactors.feats
     }
 

@@ -19,15 +19,17 @@ final class AppState {
         completionTimestamp = Date()
     }
 
-    nonisolated static var stub: AppState {
-        MainActor.assumeIsolated {
-            AppState()
-        }
-    }
 }
 
 // MARK: - Environment Values
 
+private struct AppStateKey: EnvironmentKey {
+    @MainActor static let defaultValue = AppState()
+}
+
 extension EnvironmentValues {
-    @Entry var appState: AppState = AppState.stub
+    var appState: AppState {
+        get { self[AppStateKey.self] }
+        set { self[AppStateKey.self] = newValue }
+    }
 }

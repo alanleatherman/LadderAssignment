@@ -11,7 +11,7 @@ struct FeatTestView: View {
     @Environment(\.container) private var container
     @Environment(\.dismiss) private var dismiss
 
-    private var interactor: FeatTestInteractor {
+    private var interactor: FeatTestInteractorProtocol {
         container.interactors.featTest
     }
 
@@ -108,7 +108,7 @@ struct FeatTestView: View {
 
             RepCounterView(
                 count: interactor.repCount,
-                physics: container.repPhysics,
+                animator: container.repCounterAnimator,
                 onIncrement: {
                     interactor.incrementRep()
                     hapticEngine.trigger(.repCounted)

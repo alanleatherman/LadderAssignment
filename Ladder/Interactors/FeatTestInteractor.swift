@@ -18,8 +18,37 @@ enum TestPhase: Equatable {
 }
 
 @MainActor
+protocol FeatTestInteractorProtocol: AnyObject {
+    var repCount: Int { get set }
+    var isActive: Bool { get set }
+    var startTime: Date? { get set }
+    var elapsedTime: TimeInterval { get set }
+    var phase: TestPhase { get set }
+    var pausedElapsedTime: TimeInterval { get set }
+    var lastMilestone: Int? { get set }
+    var feat: Feat? { get set }
+    var testDuration: TimeInterval { get }
+
+    func configure(with feat: Feat)
+    func startCountdown(duration: Int)
+    func startTest()
+    func incrementRep()
+    func decrementRep()
+    func pauseTest()
+    func resumeTest()
+    func completeTest()
+    func reset()
+}
+
+extension FeatTestInteractorProtocol {
+    func startCountdown() {
+        startCountdown(duration: 3)
+    }
+}
+
+@MainActor
 @Observable
-final class FeatTestInteractor {
+final class FeatTestInteractor: FeatTestInteractorProtocol {
 
     var repCount: Int = 0
     var isActive: Bool = false
@@ -120,7 +149,6 @@ final class FeatTestInteractor {
         isActive = false
         timerTask?.cancel()
 
-        // Save completion to database
         Task {
             guard let feat = feat else { return }
             try? await repository.saveFeatCompletion(
@@ -154,7 +182,6 @@ final class FeatTestInteractor {
             while !Task.isCancelled && isActive {
                 elapsedTime = Date().timeIntervalSince(startTime)
                 
-                // Check if test duration completed
                 if elapsedTime >= testDuration {
                     completeTest()
                     break

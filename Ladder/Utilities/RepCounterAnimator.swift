@@ -1,5 +1,5 @@
 //
-//  RepCounterPhysics.swift
+//  RepCounterAnimator.swift
 //  Ladder
 //
 //  Created by Alan Leatherman on 11/12/25.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @Observable
-final class RepCounterPhysics {
+final class RepCounterAnimator {
     private(set) var displayValue: Double = 0
     private var velocity: Double = 0
     private var targetValue: Double = 0

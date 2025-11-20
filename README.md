@@ -42,7 +42,7 @@ AppContainer
 ├── Repository (FeatsRepository)
 ├── AppState (Observable state)
 ├── HapticEngine
-└── RepCounterPhysics
+└── RepCounterAnimator
 ```
 
 All dependencies are injected through `AppContainer`, providing:

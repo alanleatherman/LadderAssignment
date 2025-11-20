@@ -45,16 +45,13 @@ struct BreathingGuide: View {
     }
 
     private func startBreathingAnimation() {
-        // Reset state
         scale = 1.0
         breatheIn = true
 
-        // Start animation
         withAnimation(.easeInOut(duration: 2.5).repeatForever(autoreverses: true)) {
             scale = 1.5
         }
 
-        // Start text toggle timer
         timer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: true) { _ in
             breatheIn.toggle()
         }

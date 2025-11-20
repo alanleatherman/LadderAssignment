@@ -21,11 +21,9 @@ struct CircularTimerView: View {
 
     var body: some View {
         ZStack {
-            // Background circle
             Circle()
                 .stroke(Color.gray.opacity(0.2), lineWidth: 12)
 
-            // Progress circle
             Circle()
                 .trim(from: 0, to: progress)
                 .stroke(
@@ -35,7 +33,6 @@ struct CircularTimerView: View {
                 .rotationEffect(.degrees(-90))
                 .animation(.linear(duration: 0.1), value: progress)
 
-            // Time text
             VStack(spacing: 4) {
                 Text(timeString(from: remainingTime))
                     .font(.system(size: 48, weight: .bold, design: .rounded))

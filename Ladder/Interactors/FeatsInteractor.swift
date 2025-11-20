@@ -11,8 +11,23 @@ import Creed_Lite
 import Observation
 
 @MainActor
+protocol FeatsInteractorProtocol: AnyObject {
+    var monthlyFeats: MonthlyFeats? { get set }
+    var isLoading: Bool { get set }
+    var error: FeatsError? { get set }
+    var userBestScores: [String: UserBestScore] { get set }
+    var completedFeatIds: Set<String> { get set }
+
+    func loadMonthlyFeats() async
+    func loadUserData() async
+    func getUserBest(for featId: Feat.Id) -> UserBestScore?
+    func hasCompleted(_ featId: Feat.Id) -> Bool
+    func refreshFeats() async
+}
+
+@MainActor
 @Observable
-final class FeatsInteractor {
+final class FeatsInteractor: FeatsInteractorProtocol {
     @ObservationIgnored
     private let repository: FeatsRepositoryProtocol
 

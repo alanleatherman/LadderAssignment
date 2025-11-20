@@ -11,8 +11,20 @@ import Creed_Lite
 import Observation
 
 @MainActor
+protocol LeaderboardInteractorProtocol: AnyObject {
+    var leaderboard: FeatLeaderboard? { get set }
+    var isLoading: Bool { get set }
+    var error: LeaderboardError? { get set }
+    var timeFilter: TimeFilter { get set }
+
+    func loadLeaderboard(for featId: Feat.Id) async
+    func refreshLeaderboard(for featId: Feat.Id) async
+    func updateTimeFilter(_ filter: TimeFilter)
+}
+
+@MainActor
 @Observable
-final class LeaderboardInteractor {
+final class LeaderboardInteractor: LeaderboardInteractorProtocol {
     @ObservationIgnored
     @Dependency(\.featsClient) private var featsClient
     
