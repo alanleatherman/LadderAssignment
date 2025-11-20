@@ -18,19 +18,11 @@
 			remoteGlobalIDString = AF0A21972CEE901200D7839B;
 			remoteInfo = Ladder;
 		};
-		AF0A21B32CEE901300D7839B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AF0A21902CEE901200D7839B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AF0A21972CEE901200D7839B;
-			remoteInfo = Ladder;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		AF0A21982CEE901200D7839B /* Ladder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ladder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF0A21A82CEE901300D7839B /* LadderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LadderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		AF0A21B22CEE901300D7839B /* LadderUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LadderUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -57,11 +49,6 @@
 			path = LadderTests;
 			sourceTree = "<group>";
 		};
-		AF0A21B52CEE901300D7839B /* LadderUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = LadderUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,13 +67,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AF0A21AF2CEE901300D7839B /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -95,7 +75,6 @@
 			children = (
 				AF0A219A2CEE901200D7839B /* Ladder */,
 				AF0A21AB2CEE901300D7839B /* LadderTests */,
-				AF0A21B52CEE901300D7839B /* LadderUITests */,
 				AF0A21992CEE901200D7839B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -105,7 +84,6 @@
 			children = (
 				AF0A21982CEE901200D7839B /* Ladder.app */,
 				AF0A21A82CEE901300D7839B /* LadderTests.xctest */,
-				AF0A21B22CEE901300D7839B /* LadderUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -159,29 +137,6 @@
 			productReference = AF0A21A82CEE901300D7839B /* LadderTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		AF0A21B12CEE901300D7839B /* LadderUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AF0A21C22CEE901300D7839B /* Build configuration list for PBXNativeTarget "LadderUITests" */;
-			buildPhases = (
-				AF0A21AE2CEE901300D7839B /* Sources */,
-				AF0A21AF2CEE901300D7839B /* Frameworks */,
-				AF0A21B02CEE901300D7839B /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				AF0A21B42CEE901300D7839B /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				AF0A21B52CEE901300D7839B /* LadderUITests */,
-			);
-			name = LadderUITests;
-			packageProductDependencies = (
-			);
-			productName = LadderUITests;
-			productReference = AF0A21B22CEE901300D7839B /* LadderUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -196,10 +151,6 @@
 						CreatedOnToolsVersion = 16.0;
 					};
 					AF0A21A72CEE901300D7839B = {
-						CreatedOnToolsVersion = 16.0;
-						TestTargetID = AF0A21972CEE901200D7839B;
-					};
-					AF0A21B12CEE901300D7839B = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = AF0A21972CEE901200D7839B;
 					};
@@ -224,7 +175,6 @@
 			targets = (
 				AF0A21972CEE901200D7839B /* Ladder */,
 				AF0A21A72CEE901300D7839B /* LadderTests */,
-				AF0A21B12CEE901300D7839B /* LadderUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -238,13 +188,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		AF0A21A62CEE901300D7839B /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AF0A21B02CEE901300D7839B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -268,13 +211,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AF0A21AE2CEE901300D7839B /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -282,11 +218,6 @@
 			isa = PBXTargetDependency;
 			target = AF0A21972CEE901200D7839B /* Ladder */;
 			targetProxy = AF0A21A92CEE901300D7839B /* PBXContainerItemProxy */;
-		};
-		AF0A21B42CEE901300D7839B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AF0A21972CEE901200D7839B /* Ladder */;
-			targetProxy = AF0A21B32CEE901300D7839B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -506,40 +437,6 @@
 			};
 			name = Release;
 		};
-		AF0A21C32CEE901300D7839B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 47C67EY3XL;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ladder.LadderUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Ladder;
-			};
-			name = Debug;
-		};
-		AF0A21C42CEE901300D7839B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 47C67EY3XL;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ladder.LadderUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Ladder;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -566,15 +463,6 @@
 			buildConfigurations = (
 				AF0A21C02CEE901300D7839B /* Debug */,
 				AF0A21C12CEE901300D7839B /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		AF0A21C22CEE901300D7839B /* Build configuration list for PBXNativeTarget "LadderUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AF0A21C32CEE901300D7839B /* Debug */,
-				AF0A21C42CEE901300D7839B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
