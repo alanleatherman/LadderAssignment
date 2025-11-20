@@ -55,8 +55,9 @@ struct AppContainer {
 
 // MARK: - Environment Values
 
-private struct ContainerKey: EnvironmentKey {
-    @MainActor static let defaultValue: AppContainer = {
+@MainActor
+private struct ContainerKey: @preconcurrency EnvironmentKey {
+    static let defaultValue: AppContainer = {
         let repo = MockRepository()
         let state = AppState()
         return AppContainer(
@@ -71,8 +72,9 @@ private struct ContainerKey: EnvironmentKey {
     }()
 }
 
-private struct InteractorsKey: EnvironmentKey {
-    @MainActor static let defaultValue: AppContainer.Interactors = {
+@MainActor
+private struct InteractorsKey: @preconcurrency EnvironmentKey {
+    static let defaultValue: AppContainer.Interactors = {
         let repo = MockRepository()
         let state = AppState()
         return AppContainer.Interactors(

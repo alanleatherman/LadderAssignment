@@ -23,8 +23,9 @@ final class AppState {
 
 // MARK: - Environment Values
 
-private struct AppStateKey: EnvironmentKey {
-    @MainActor static let defaultValue = AppState()
+@MainActor
+private struct AppStateKey: @preconcurrency EnvironmentKey {
+    static let defaultValue = AppState()
 }
 
 extension EnvironmentValues {

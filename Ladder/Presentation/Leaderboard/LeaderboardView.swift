@@ -75,33 +75,55 @@ struct LeaderboardView: View {
                     // Header
                     leaderboardHeader
 
-                    // Placements
-                    ForEach(Array(leaderboard.placements.enumerated()), id: \.element.id) { index, placement in
-                        LeaderboardRowView(
-                            placement: placement,
-                            isCurrentUser: placement.name == "You" // In real app, check against user ID
-                        )
-                        .id(placement.id)
-                    }
-
-                    // Show user's position if not in top placements
+                    // Show placements with user highlighted if present, or insert user inline
                     if let userBest = userBestScore {
                         let userRank = leaderboard.placements.filter { $0.totalRepCount > userBest.repCount }.count + 1
-                        let isUserInList = leaderboard.placements.contains { $0.name == "You" }
+                        let userInPlacements = leaderboard.placements.contains(where: { $0.totalRepCount == userBest.repCount })
+                        let firstPlacementBelowUser = leaderboard.placements.first(where: { $0.totalRepCount < userBest.repCount })
 
-                        if !isUserInList && userRank > leaderboard.placements.count {
-                            // Separator
-                            HStack {
-                                Text("...")
-                                    .font(.title2)
-                                    .foregroundStyle(.secondary)
+                        ForEach(leaderboard.placements, id: \.id) { placement in
+                            // Calculate if this placement comes after user insertion
+                            let userInsertedBefore = !userInPlacements && placement.totalRepCount < userBest.repCount
+
+                            // If user should be inserted before this placement (only once)
+                            if !userInPlacements && placement.id == firstPlacementBelowUser?.id {
+                                userLeaderboardRow(rank: userRank, repCount: userBest.repCount)
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
-                            .background(Color(uiColor: .systemGroupedBackground))
 
-                            // User's row
+                            let isCurrentUser = placement.totalRepCount == userBest.repCount
+
+                            // Adjust rank if user was inserted before this placement
+                            let adjustedRank = userInsertedBefore ? placement.placement + 1 : placement.placement
+
+                            LeaderboardRowView(
+                                placement: placement,
+                                isCurrentUser: isCurrentUser,
+                                overrideRank: adjustedRank
+                            )
+                        }
+
+                        // If user's score is lower than all shown placements
+                        if !userInPlacements && leaderboard.placements.allSatisfy({ $0.totalRepCount >= userBest.repCount }) {
+                            let lastShownRank = leaderboard.placements.count
+                            if userRank > lastShownRank + 1 {
+                                HStack {
+                                    Text("...")
+                                        .font(.title2)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
+                                .background(Color(uiColor: .systemGroupedBackground))
+                            }
+
                             userLeaderboardRow(rank: userRank, repCount: userBest.repCount)
+                        }
+                    } else {
+                        ForEach(leaderboard.placements, id: \.id) { placement in
+                            LeaderboardRowView(
+                                placement: placement,
+                                isCurrentUser: false
+                            )
                         }
                     }
                 }

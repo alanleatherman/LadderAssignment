@@ -11,6 +11,13 @@ import Creed_Lite
 struct LeaderboardRowView: View {
     let placement: FeatLeaderBoardPlacement
     let isCurrentUser: Bool
+    let overrideRank: Int?
+
+    init(placement: FeatLeaderBoardPlacement, isCurrentUser: Bool, overrideRank: Int? = nil) {
+        self.placement = placement
+        self.isCurrentUser = isCurrentUser
+        self.overrideRank = overrideRank
+    }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -18,14 +25,14 @@ struct LeaderboardRowView: View {
             HStack(spacing: 4) {
                 movementIndicator
 
-                Text("\(placement.placement)")
+                Text("\(overrideRank ?? placement.placement)")
                     .font(.headline.monospacedDigit())
                     .foregroundStyle(isCurrentUser ? .green : .primary)
                     .frame(width: 40, alignment: .trailing)
             }
 
             // Avatar
-            AsyncImage(url: placement.imageURL) { phase in
+            AsyncImage(url: placement.imageURL, transaction: Transaction(animation: .easeInOut(duration: 0.3))) { phase in
                 switch phase {
                 case .empty:
                     Circle()
@@ -34,6 +41,7 @@ struct LeaderboardRowView: View {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
+                        .transition(.scale(scale: 0.8).combined(with: .opacity))
                 case .failure:
                     Circle()
                         .fill(Color.gray.opacity(0.4))

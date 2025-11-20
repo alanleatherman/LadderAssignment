@@ -194,7 +194,7 @@ struct FeatDetailView: View {
     @ViewBuilder
     private func topPerformerAvatar(user: FeatUser) -> some View {
         VStack {
-            AsyncImage(url: user.imageURL) { phase in
+            AsyncImage(url: user.imageURL, transaction: Transaction(animation: .easeInOut(duration: 0.3))) { phase in
                 switch phase {
                 case .empty:
                     Circle()
@@ -203,6 +203,7 @@ struct FeatDetailView: View {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
+                        .transition(.scale(scale: 0.8).combined(with: .opacity))
                 case .failure:
                     Circle()
                         .fill(Color.gray.opacity(0.4))
@@ -300,12 +301,10 @@ struct FeatDetailView: View {
             newPlayer?.play()
         }
 
-        // Auto-play
         newPlayer.play()
     }
 
     private func cleanupPlayer() {
-        // Remove observer properly
         if let observer = loopObserver {
             NotificationCenter.default.removeObserver(observer)
             loopObserver = nil

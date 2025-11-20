@@ -127,7 +127,7 @@ struct FeatCardView: View {
 
     @ViewBuilder
     private func topBadges(geometry: GeometryProxy) -> some View {
-        HStack {
+        HStack(alignment: .top) {
             if isFeatured {
                 HStack(spacing: 4) {
                     Image(systemName: "star.fill")
@@ -164,7 +164,7 @@ struct FeatCardView: View {
                 }
             }
         }
-        .padding(.top, isFeatured ? max(geometry.safeAreaInsets.top, 50) + 67 : max(geometry.safeAreaInsets.top, 50))
+        .padding(.top, max(geometry.safeAreaInsets.top, 50) + 67)
     }
 
     private var featInfo: some View {
@@ -198,7 +198,7 @@ struct FeatCardView: View {
     private var userAvatars: some View {
         HStack(spacing: -8) {
             ForEach(feat.top3Users.prefix(3), id: \.id) { user in
-                AsyncImage(url: user.imageURL) { phase in
+                AsyncImage(url: user.imageURL, transaction: Transaction(animation: .easeInOut(duration: 0.3))) { phase in
                     switch phase {
                     case .empty:
                         Circle()
@@ -207,6 +207,7 @@ struct FeatCardView: View {
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
+                            .transition(.scale(scale: 0.8).combined(with: .opacity))
                     case .failure:
                         Circle()
                             .fill(Color.gray.opacity(0.4))
@@ -249,23 +250,16 @@ struct FeatCardView: View {
             newPlayer?.play()
         }
 
-        // Observe when video starts playing
-        _ = NotificationCenter.default.addObserver(
-            forName: AVPlayerItem.newAccessLogEntryNotification,
-            object: newPlayer.currentItem,
-            queue: .main
-        ) { _ in
-            Task { @MainActor in
-                try? await Task.sleep(for: .milliseconds(500))
-                withAnimation {
-                    self.isVideoLoading = false
-                }
-            }
-        }
-
-        // Also hide loading after a timeout (fallback)
+        // Observe when player item is ready to play
         Task { @MainActor in
-            try? await Task.sleep(for: .seconds(2))
+            // Wait for the player to have buffered enough
+            while newPlayer.currentItem?.status != .readyToPlay {
+                try? await Task.sleep(for: .milliseconds(50))
+            }
+
+            // Wait a tiny bit for the first frame to actually render
+            try? await Task.sleep(for: .milliseconds(100))
+
             withAnimation {
                 self.isVideoLoading = false
             }

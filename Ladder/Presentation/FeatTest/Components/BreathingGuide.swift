@@ -14,7 +14,7 @@ struct BreathingGuide: View {
     @State private var animationTask: Task<Void, Never>?
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 40) {
             ZStack {
                 Circle()
                     .fill(
@@ -31,6 +31,7 @@ struct BreathingGuide: View {
                     .font(.system(size: 40))
                     .foregroundStyle(.white)
             }
+            .frame(height: 180)
 
             Text(breatheIn ? "Breathe In" : "Breathe Out")
                 .font(.subheadline)

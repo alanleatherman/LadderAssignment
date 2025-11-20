@@ -15,6 +15,10 @@ struct FeatTestView: View {
         container.interactors.featTest
     }
 
+    private var leaderboardInteractor: LeaderboardInteractorProtocol {
+        container.interactors.leaderboard
+    }
+
     private var hapticEngine: HapticEngine {
         container.hapticEngine
     }
@@ -101,6 +105,12 @@ struct FeatTestView: View {
 
     private var activeTestView: some View {
         VStack(spacing: 32) {
+            if let feat = interactor.feat {
+                Text(feat.movement.uppercased())
+                    .font(.title.bold())
+                    .foregroundStyle(.primary)
+            }
+
             CircularTimerView(
                 elapsedTime: interactor.elapsedTime,
                 totalTime: interactor.testDuration
@@ -140,7 +150,9 @@ struct FeatTestView: View {
     }
 
     private func completeView(repCount: Int) -> some View {
-        VStack(spacing: 32) {
+        let userRank = calculateUserRank(for: repCount)
+
+        return VStack(spacing: 32) {
             ZStack {
                 Circle()
                     .fill(
@@ -168,6 +180,16 @@ struct FeatTestView: View {
                 Text("Test Complete!")
                     .font(.title.bold())
 
+                if let rank = userRank {
+                    HStack(spacing: 4) {
+                        Text("You're ranked")
+                        Text("#\(rank)")
+                            .fontWeight(.black)
+                            .foregroundStyle(Color.ladderPrimary)
+                    }
+                    .font(.title3)
+                }
+
                 Text(motivationalMessage(for: repCount))
                     .font(.title3)
                     .foregroundStyle(.secondary)
@@ -185,6 +207,11 @@ struct FeatTestView: View {
         }
         .onAppear {
             hapticEngine.trigger(.testComplete)
+            if let feat = interactor.feat {
+                Task {
+                    await leaderboardInteractor.loadLeaderboard(for: feat.id)
+                }
+            }
         }
     }
 
@@ -229,30 +256,16 @@ struct FeatTestView: View {
             EmptyView()
 
         case .active:
-            HStack(spacing: 16) {
-                Button {
-                    interactor.pauseTest()
-                    hapticEngine.trigger(.buttonTap)
-                } label: {
-                    Label("Pause", systemImage: "pause.fill")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.orange)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-
-                Button {
-                    interactor.completeTest()
-                    hapticEngine.trigger(.buttonTap)
-                } label: {
-                    Label("Finish", systemImage: "checkmark")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.ladderPrimary)
-                        .foregroundStyle(.black)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
+            Button {
+                interactor.completeTest()
+                hapticEngine.trigger(.buttonTap)
+            } label: {
+                Label("Finish", systemImage: "checkmark")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.ladderPrimary)
+                    .foregroundStyle(.black)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .padding(.horizontal, 40)
 
@@ -321,5 +334,17 @@ struct FeatTestView: View {
         let minutes = Int(interval) / 60
         let seconds = Int(interval) % 60
         return String(format: "%d:%02d", minutes, seconds)
+    }
+
+    private func calculateUserRank(for repCount: Int) -> Int? {
+        guard let leaderboard = leaderboardInteractor.leaderboard else {
+            return nil
+        }
+
+        // Count how many users have more reps than the current user
+        let betterThanUser = leaderboard.placements.filter { $0.totalRepCount > repCount }
+        let rank = betterThanUser.count + 1
+
+        return rank
     }
 }
