@@ -103,12 +103,16 @@ struct FeatCardView: View {
                 endPoint: .bottom
             )
 
-            // Bottom gradient for text readability
-            LinearGradient(
-                colors: [.clear, .black.opacity(0.8)],
-                startPoint: .center,
-                endPoint: .bottom
-            )
+            // Bottom gradient for text readability - extends all the way down
+            VStack(spacing: 0) {
+                Spacer()
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.7), .black],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 250)
+            }
         }
     }
 
@@ -119,11 +123,10 @@ struct FeatCardView: View {
             Spacer()
             featInfo
             bottomInfo
-                .padding(.bottom, max(geometry.safeAreaInsets.bottom + 50, 50))
         }
         .padding(.horizontal, 20)
         .padding(.top, 16)
-        .padding(.bottom, 32)
+        .padding(.bottom, max(geometry.safeAreaInsets.bottom + 58, 88))
     }
 
     @ViewBuilder
