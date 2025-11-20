@@ -49,7 +49,6 @@ struct FeatsHomeView: View {
                 LazyVStack(spacing: 0) {
                     ForEach(Array(monthlyFeats.feats.enumerated()), id: \.element.id) { index, feat in
                         ZStack(alignment: .topLeading) {
-                            // Full screen card
                             FeatCardView(
                                 feat: feat,
                                 isFeatured: index == 0,
@@ -57,7 +56,6 @@ struct FeatsHomeView: View {
                                 selectedFeat: $selectedFeat
                             )
 
-                            // Header overlay only on first page
                             if index == 0 {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Feats of Strength")
@@ -66,7 +64,7 @@ struct FeatsHomeView: View {
 
                                     Text(monthlyFeats.subtitle)
                                         .font(.headline)
-                                        .foregroundStyle(.secondary)
+                                        .foregroundStyle(.white.opacity(0.9))
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 28)

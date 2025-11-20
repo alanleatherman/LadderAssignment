@@ -92,7 +92,6 @@ struct FeatCardView: View {
 
     private var gradientOverlays: some View {
         ZStack {
-            // Color tint overlay
             LinearGradient(
                 colors: [
                     Color.ladderPrimary.opacity(0.3),
@@ -103,7 +102,6 @@ struct FeatCardView: View {
                 endPoint: .bottom
             )
 
-            // Bottom gradient for text readability - extends all the way down
             VStack(spacing: 0) {
                 Spacer()
                 LinearGradient(
