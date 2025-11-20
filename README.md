@@ -383,12 +383,6 @@ Auto-playing videos create engaging, dynamic feed similar to modern social apps.
 
 ---
 
-## License
-
-[Add your license here]
-
----
-
 ## Contributors
 
 Created by Alan Leatherman
