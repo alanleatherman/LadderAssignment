@@ -41,8 +41,6 @@ final class FeatsInteractor {
 
     func loadUserData() async {
         guard let feats = monthlyFeats?.feats else { return }
-
-        // Load user's best scores for all feats
         for feat in feats {
             if let bestScore = await repository.getUserBestScore(for: feat.id) {
                 userBestScores[feat.id.rawValue] = bestScore

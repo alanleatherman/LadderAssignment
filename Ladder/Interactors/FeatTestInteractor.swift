@@ -9,6 +9,14 @@ import Foundation
 import Observation
 import Creed_Lite
 
+enum TestPhase: Equatable {
+    case ready
+    case countdown(Int)
+    case active
+    case paused
+    case complete(repCount: Int)
+}
+
 @MainActor
 @Observable
 final class FeatTestInteractor {
@@ -19,6 +27,7 @@ final class FeatTestInteractor {
     var elapsedTime: TimeInterval = 0
     var phase: TestPhase = .ready
     var pausedElapsedTime: TimeInterval = 0
+    var lastMilestone: Int? = nil
 
     @ObservationIgnored private var timerTask: Task<Void, Never>?
     @ObservationIgnored private var countdownTask: Task<Void, Never>?
@@ -26,11 +35,7 @@ final class FeatTestInteractor {
     @ObservationIgnored private let appState: AppState
 
     var feat: Feat?
-
-    init(repository: FeatsRepositoryProtocol, appState: AppState) {
-        self.repository = repository
-        self.appState = appState
-    }
+    
     var testDuration: TimeInterval {
         // Extract duration from feat name, fallback to 5 minutes
         guard let feat = feat else { return 300 }
@@ -43,13 +48,10 @@ final class FeatTestInteractor {
         }
         return 300 // Default 5 minutes
     }
-    
-    enum TestPhase: Equatable {
-        case ready
-        case countdown(Int)
-        case active
-        case paused
-        case complete(repCount: Int)
+
+    init(repository: FeatsRepositoryProtocol, appState: AppState) {
+        self.repository = repository
+        self.appState = appState
     }
     
     func configure(with feat: Feat) {
@@ -87,15 +89,10 @@ final class FeatTestInteractor {
     func incrementRep() {
         guard isActive else { return }
         repCount += 1
-        
-        // Check for milestones
+
+        // Check for milestones (every 10 reps)
         if repCount % 10 == 0 {
-            // Trigger milestone celebration
-            NotificationCenter.default.post(
-                name: .repMilestone,
-                object: nil,
-                userInfo: ["count": repCount]
-            )
+            lastMilestone = repCount
         }
     }
     
@@ -114,7 +111,6 @@ final class FeatTestInteractor {
     func resumeTest() {
         phase = .active
         isActive = true
-        // Adjust start time to account for paused duration
         startTime = Date().addingTimeInterval(-pausedElapsedTime)
         startTimer()
     }
@@ -133,8 +129,7 @@ final class FeatTestInteractor {
                 duration: elapsedTime
             )
 
-            // Notify via AppState that a completion was saved
-            await appState.notifyFeatCompleted(featId: feat.id.rawValue)
+            appState.notifyFeatCompleted(featId: feat.id.rawValue)
         }
     }
     
@@ -148,6 +143,7 @@ final class FeatTestInteractor {
         elapsedTime = 0
         pausedElapsedTime = 0
         phase = .ready
+        lastMilestone = nil
     }
     
     private func startTimer() {
@@ -173,8 +169,4 @@ final class FeatTestInteractor {
         timerTask?.cancel()
         countdownTask?.cancel()
     }
-}
-
-extension Notification.Name {
-    static let repMilestone = Notification.Name("repMilestone")
 }

@@ -21,12 +21,10 @@ struct FeatTestView: View {
 
     var body: some View {
         ZStack {
-            // Background color based on phase
             backgroundForPhase
                 .ignoresSafeArea()
 
             VStack(spacing: 40) {
-                // Close button
                 HStack {
                     Spacer()
                     Button {
@@ -41,7 +39,6 @@ struct FeatTestView: View {
 
                 Spacer()
 
-                // Main content based on phase
                 switch interactor.phase {
                 case .ready:
                     readyView
@@ -57,7 +54,6 @@ struct FeatTestView: View {
 
                 Spacer()
 
-                // Controls
                 controlsView
                     .padding(.bottom, 40)
             }
@@ -105,13 +101,11 @@ struct FeatTestView: View {
 
     private var activeTestView: some View {
         VStack(spacing: 32) {
-            // Timer
             CircularTimerView(
                 elapsedTime: interactor.elapsedTime,
                 totalTime: interactor.testDuration
             )
 
-            // Rep Counter
             RepCounterView(
                 count: interactor.repCount,
                 physics: container.repPhysics,
@@ -147,7 +141,6 @@ struct FeatTestView: View {
 
     private func completeView(repCount: Int) -> some View {
         VStack(spacing: 32) {
-            // Badge with score
             ZStack {
                 Circle()
                     .fill(

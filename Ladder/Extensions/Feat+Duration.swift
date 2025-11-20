@@ -16,7 +16,9 @@ extension Feat {
 
         // Look for patterns like "1 MIN", "2 MIN", "5 MIN", etc.
         if let match = name.range(of: #"\d+\s*MIN"#, options: .regularExpression) {
-            let durationPart = name[match].trimmingCharacters(in: .whitespaces)
+            let durationPart = name[match]
+                .trimmingCharacters(in: .whitespaces)
+                .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
             return durationPart.lowercased()
         }
 

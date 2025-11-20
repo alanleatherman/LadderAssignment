@@ -37,14 +37,18 @@ struct AppEnvironment {
 
 extension AppEnvironment {
     static func bootstrap(modelContext: ModelContext, _ optionOverride: AppEnvironment.Option? = nil) -> AppEnvironment {
-        let option = optionOverride ?? AppEnvironment.current
+        let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+
+        // If tests are running, force test environment
+        let option: Option = {
+            if isRunningTests {
+                return .tests
+            }
+            return optionOverride ?? AppEnvironment.current
+        }()
+
         let logger = Logger(subsystem: "com.ladder.app", category: "AppEnvironment")
         logger.info("Current environment: \(option.rawValue)")
-
-        let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
-        guard !isRunningTests || option == .tests else {
-            fatalError("Cannot setup app environment in test context")
-        }
 
         switch option {
         case .tests:
