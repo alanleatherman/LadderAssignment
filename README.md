@@ -2,9 +2,9 @@
 
 A modern iOS fitness challenge application built with SwiftUI, leveraging the latest iOS frameworks and architectural patterns.
 
-<img width="603" height="1311" alt="Simulator Screenshot - iPhone 17 Pro - 2025-11-19 at 18 39 47" src="https://github.com/user-attachments/assets/a311e950-c681-4c1c-ad05-a2902562a7d9" />
-<img width="603" height="1311" alt="Simulator Screenshot - iPhone 17 Pro - 2025-11-19 at 18 39 53" src="https://github.com/user-attachments/assets/0c08edf5-5eef-454c-b0e4-ed93726799d9" />
-<img width="603" height="1311" alt="Simulator Screenshot - iPhone 17 Pro - 2025-11-19 at 18 40 09" src="https://github.com/user-attachments/assets/79d3f2cf-b93f-4b83-8c73-e00e35b6c1bb" />
+<img width="301" height="655" alt="Simulator Screenshot - iPhone 17 Pro - 2025-11-19 at 18 39 47" src="https://github.com/user-attachments/assets/a311e950-c681-4c1c-ad05-a2902562a7d9" />
+<img width="301" height="655" alt="Simulator Screenshot - iPhone 17 Pro - 2025-11-19 at 18 39 53" src="https://github.com/user-attachments/assets/0c08edf5-5eef-454c-b0e4-ed93726799d9" />
+<img width="301" height="655" alt="Simulator Screenshot - iPhone 17 Pro - 2025-11-19 at 18 40 09" src="https://github.com/user-attachments/assets/79d3f2cf-b93f-4b83-8c73-e00e35b6c1bb" />
 
 
 ## Architecture
