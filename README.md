@@ -59,8 +59,8 @@ All dependencies are injected through `AppContainer`, providing:
 
 Interactors are `@Observable` classes that manage:
 - Business logic
-- State management
-- Data fetching and persistence
+- State management (AppState and other state directly observable to the Views)
+- Data fetching and persistence (via the FeatsRepository)
 - Coordination between layers
 
 **Example: FeatTestInteractor**
