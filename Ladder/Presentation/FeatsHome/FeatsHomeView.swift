@@ -125,3 +125,23 @@ struct FeatsHomeView: View {
         .padding(40)
     }
 }
+
+// MARK: - Previews
+
+#Preview("Feats Home - Loading") {
+    FeatsHomeView()
+        .inject(.preview)
+        .preferredColorScheme(.dark)
+        .onAppear {
+            AppContainer.preview.interactors.feats.isLoading = true
+        }
+}
+
+#Preview("Feats Home - Error") {
+    FeatsHomeView()
+        .inject(.preview)
+        .preferredColorScheme(.dark)
+        .onAppear {
+            AppContainer.preview.interactors.feats.error = .notFound
+        }
+}

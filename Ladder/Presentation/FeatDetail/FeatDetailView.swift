@@ -354,3 +354,36 @@ struct InstructionRow: View {
         }
     }
 }
+
+// MARK: - Previews
+
+#Preview("Stat View") {
+    StatView(
+        title: "Movement",
+        value: "Push-ups",
+        icon: "figure.strengthtraining.traditional"
+    )
+    .padding()
+    .background(Color.black)
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Instruction Row") {
+    VStack(spacing: 12) {
+        InstructionRow(
+            number: 1,
+            text: "You have 5 minutes to complete as many push-ups as possible"
+        )
+        InstructionRow(
+            number: 2,
+            text: "Maintain proper form throughout the test"
+        )
+        InstructionRow(
+            number: 3,
+            text: "Compare your results with the community"
+        )
+    }
+    .padding()
+    .background(Color.black)
+    .preferredColorScheme(.dark)
+}

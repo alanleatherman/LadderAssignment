@@ -65,3 +65,10 @@ struct BreathingGuide: View {
         animationTask = nil
     }
 }
+
+#Preview {
+    BreathingGuide()
+        .padding()
+        .background(Color.black)
+        .preferredColorScheme(.dark)
+}

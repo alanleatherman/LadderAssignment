@@ -27,7 +27,7 @@ struct LadderApp: App {
 
     var body: some Scene {
         WindowGroup {
-            FeatsHomeView()
+            MainTabView()
                 .inject(environment.appContainer)
                 .preferredColorScheme(.dark)
         }

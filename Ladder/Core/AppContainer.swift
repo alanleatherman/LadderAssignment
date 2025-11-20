@@ -37,17 +37,37 @@ struct AppContainer {
         return AppContainer(interactors: interactors, repository: repository, appState: appState)
     }
 
+    #if DEBUG
+    @MainActor
+    static var preview: AppContainer {
+        let repo = MockRepository()
+        let state = AppState()
+        return AppContainer(
+            interactors: Interactors(
+                feats: FeatsInteractor(repository: repo),
+                leaderboard: LeaderboardInteractor(),
+                featTest: FeatTestInteractor(repository: repo, appState: state),
+                history: HistoryInteractor(repository: repo)
+            ),
+            repository: repo,
+            appState: state
+        )
+    }
+    #endif
+
     struct Interactors {
         let feats: FeatsInteractorProtocol
         let leaderboard: LeaderboardInteractorProtocol
         let featTest: FeatTestInteractorProtocol
+        let history: HistoryInteractorProtocol
 
         @MainActor
         static func live(repository: FeatsRepositoryProtocol, appState: AppState) -> Self {
             .init(
                 feats: FeatsInteractor(repository: repository),
                 leaderboard: LeaderboardInteractor(),
-                featTest: FeatTestInteractor(repository: repository, appState: appState)
+                featTest: FeatTestInteractor(repository: repository, appState: appState),
+                history: HistoryInteractor(repository: repository)
             )
         }
     }
@@ -64,7 +84,8 @@ private struct ContainerKey: @preconcurrency EnvironmentKey {
             interactors: AppContainer.Interactors(
                 feats: FeatsInteractor(repository: repo),
                 leaderboard: LeaderboardInteractor(),
-                featTest: FeatTestInteractor(repository: repo, appState: state)
+                featTest: FeatTestInteractor(repository: repo, appState: state),
+                history: HistoryInteractor(repository: repo)
             ),
             repository: repo,
             appState: state
@@ -80,7 +101,8 @@ private struct InteractorsKey: @preconcurrency EnvironmentKey {
         return AppContainer.Interactors(
             feats: FeatsInteractor(repository: repo),
             leaderboard: LeaderboardInteractor(),
-            featTest: FeatTestInteractor(repository: repo, appState: state)
+            featTest: FeatTestInteractor(repository: repo, appState: state),
+            history: HistoryInteractor(repository: repo)
         )
     }()
 }

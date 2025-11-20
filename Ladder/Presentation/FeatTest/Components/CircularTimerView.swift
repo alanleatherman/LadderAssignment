@@ -62,3 +62,24 @@ struct CircularTimerView: View {
         return String(format: "%d:%02d", minutes, seconds)
     }
 }
+
+#Preview("Timer - Start") {
+    CircularTimerView(elapsedTime: 0, totalTime: 300)
+        .padding()
+        .background(Color.black)
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Timer - Halfway") {
+    CircularTimerView(elapsedTime: 150, totalTime: 300)
+        .padding()
+        .background(Color.black)
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Timer - Almost Done") {
+    CircularTimerView(elapsedTime: 270, totalTime: 300)
+        .padding()
+        .background(Color.black)
+        .preferredColorScheme(.dark)
+}

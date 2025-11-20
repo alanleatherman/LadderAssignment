@@ -119,6 +119,7 @@ struct FeatCardView: View {
             Spacer()
             featInfo
             bottomInfo
+                .padding(.bottom, max(geometry.safeAreaInsets.bottom + 50, 50))
         }
         .padding(.horizontal, 20)
         .padding(.top, 16)
@@ -240,7 +241,6 @@ struct FeatCardView: View {
 
         player = newPlayer
 
-        // Setup looping
         loopObserver = NotificationCenter.default.addObserver(
             forName: .AVPlayerItemDidPlayToEndTime,
             object: newPlayer.currentItem,
@@ -250,22 +250,17 @@ struct FeatCardView: View {
             newPlayer?.play()
         }
 
-        // Observe when player item is ready to play
         Task { @MainActor in
-            // Wait for the player to have buffered enough
             while newPlayer.currentItem?.status != .readyToPlay {
                 try? await Task.sleep(for: .milliseconds(50))
             }
 
-            // Wait a tiny bit for the first frame to actually render
             try? await Task.sleep(for: .milliseconds(100))
-
             withAnimation {
                 self.isVideoLoading = false
             }
         }
 
-        // Auto-play
         newPlayer.play()
     }
 
@@ -277,14 +272,5 @@ struct FeatCardView: View {
 
         player?.pause()
         player = nil
-    }
-}
-
-// Custom button style with scale animation
-struct ScaleButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .animation(.easeOut(duration: 0.2), value: configuration.isPressed)
     }
 }

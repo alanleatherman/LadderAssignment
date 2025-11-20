@@ -24,46 +24,53 @@ struct FeatTestView: View {
     }
 
     var body: some View {
-        ZStack {
-            backgroundForPhase
-                .ignoresSafeArea()
+        NavigationStack {
+            ZStack {
+                backgroundForPhase
+                    .ignoresSafeArea()
 
-            VStack(spacing: 40) {
-                HStack {
+                VStack(spacing: 40) {
                     Spacer()
+
+                    Group {
+                        switch interactor.phase {
+                        case .ready:
+                            readyView
+                        case .countdown(let count):
+                            countdownView(count: count)
+                        case .go:
+                            goView
+                        case .active:
+                            activeTestView
+                        case .paused:
+                            pausedView
+                        case .complete(let repCount):
+                            completeView(repCount: repCount)
+                        }
+                    }
+                    .animation(.easeInOut(duration: 0.5), value: interactor.phase)
+
+                    Spacer()
+
+                    controlsView
+                        .padding(.bottom, 40)
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.title)
+                            .font(.title3)
                             .foregroundStyle(.secondary)
                     }
                 }
-                .padding()
-
-                Spacer()
-
-                switch interactor.phase {
-                case .ready:
-                    readyView
-                case .countdown(let count):
-                    countdownView(count: count)
-                case .active:
-                    activeTestView
-                case .paused:
-                    pausedView
-                case .complete(let repCount):
-                    completeView(repCount: repCount)
-                }
-
-                Spacer()
-
-                controlsView
-                    .padding(.bottom, 40)
             }
-        }
-        .onAppear {
-            hapticEngine.prepare()
+            .onAppear {
+                hapticEngine.prepare()
+            }
         }
     }
 
@@ -101,6 +108,13 @@ struct FeatTestView: View {
 
             BreathingGuide()
         }
+    }
+
+    private var goView: some View {
+        Text("GO!")
+            .font(.system(size: 120, weight: .black))
+            .foregroundStyle(Color.ladderPrimary)
+            .transition(.scale.combined(with: .opacity))
     }
 
     private var activeTestView: some View {
@@ -255,6 +269,9 @@ struct FeatTestView: View {
         case .countdown:
             EmptyView()
 
+        case .go:
+            EmptyView()
+
         case .active:
             Button {
                 interactor.completeTest()
@@ -321,6 +338,8 @@ struct FeatTestView: View {
             return Color(uiColor: .systemBackground)
         case .countdown:
             return Color.orange.opacity(0.1)
+        case .go:
+            return Color.ladderPrimary.opacity(0.15)
         case .active:
             return Color.blue.opacity(0.05)
         case .paused:
@@ -345,4 +364,64 @@ struct FeatTestView: View {
         let rank = betterThanUser.count + 1
         return rank
     }
+}
+
+// MARK: - Previews
+
+#Preview("Feat Test - Ready") {
+    FeatTestView()
+        .inject(.preview)
+        .preferredColorScheme(.dark)
+        .onAppear {
+            AppContainer.preview.interactors.featTest.phase = .ready
+        }
+}
+
+#Preview("Feat Test - Countdown") {
+    FeatTestView()
+        .inject(.preview)
+        .preferredColorScheme(.dark)
+        .onAppear {
+            AppContainer.preview.interactors.featTest.phase = .countdown(2)
+        }
+}
+
+#Preview("Feat Test - Go") {
+    FeatTestView()
+        .inject(.preview)
+        .preferredColorScheme(.dark)
+        .onAppear {
+            AppContainer.preview.interactors.featTest.phase = .go
+        }
+}
+
+#Preview("Feat Test - Active") {
+    FeatTestView()
+        .inject(.preview)
+        .preferredColorScheme(.dark)
+        .onAppear {
+            AppContainer.preview.interactors.featTest.phase = .active
+            AppContainer.preview.interactors.featTest.repCount = 25
+            AppContainer.preview.interactors.featTest.elapsedTime = 150
+        }
+}
+
+#Preview("Feat Test - Paused") {
+    FeatTestView()
+        .inject(.preview)
+        .preferredColorScheme(.dark)
+        .onAppear {
+            AppContainer.preview.interactors.featTest.phase = .paused
+            AppContainer.preview.interactors.featTest.repCount = 30
+            AppContainer.preview.interactors.featTest.elapsedTime = 180
+        }
+}
+
+#Preview("Feat Test - Complete") {
+    FeatTestView()
+        .inject(.preview)
+        .preferredColorScheme(.dark)
+        .onAppear {
+            AppContainer.preview.interactors.featTest.phase = .complete(repCount: 50)
+        }
 }

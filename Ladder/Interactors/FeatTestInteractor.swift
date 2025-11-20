@@ -12,6 +12,7 @@ import Creed_Lite
 enum TestPhase: Equatable {
     case ready
     case countdown(Int)
+    case go
     case active
     case paused
     case complete(repCount: Int)
@@ -90,7 +91,7 @@ final class FeatTestInteractor: FeatTestInteractorProtocol {
     
     func startCountdown(duration: Int = 3) {
         phase = .countdown(duration)
-        
+
         countdownTask?.cancel()
         countdownTask = Task {
             for i in stride(from: duration, through: 1, by: -1) {
@@ -98,7 +99,13 @@ final class FeatTestInteractor: FeatTestInteractorProtocol {
                 phase = .countdown(i)
                 try? await Task.sleep(for: .seconds(1))
             }
-            
+
+            guard !Task.isCancelled else { return }
+
+            // Show "Go!"
+            phase = .go
+            try? await Task.sleep(for: .milliseconds(800))
+
             guard !Task.isCancelled else { return }
             startTest()
         }
