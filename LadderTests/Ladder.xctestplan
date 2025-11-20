@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "86532E31-F11A-4BC6-81E6-6C8795A25220",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Ladder.xcodeproj",
+        "identifier" : "AF0A21A72CEE901300D7839B",
+        "name" : "LadderTests"
+      }
+    }
+  ],
+  "version" : 1
+}

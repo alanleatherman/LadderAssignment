@@ -33,6 +33,16 @@
 		AF0A21B22CEE901300D7839B /* LadderUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LadderUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		FF9113A02ECEBD1A00120FCF /* Exceptions for "LadderTests" folder in "LadderTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Ladder.xctestplan,
+			);
+			target = AF0A21A72CEE901300D7839B /* LadderTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AF0A219A2CEE901200D7839B /* Ladder */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -41,6 +51,9 @@
 		};
 		AF0A21AB2CEE901300D7839B /* LadderTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FF9113A02ECEBD1A00120FCF /* Exceptions for "LadderTests" folder in "LadderTests" target */,
+			);
 			path = LadderTests;
 			sourceTree = "<group>";
 		};
@@ -83,7 +96,6 @@
 				AF0A219A2CEE901200D7839B /* Ladder */,
 				AF0A21AB2CEE901300D7839B /* LadderTests */,
 				AF0A21B52CEE901300D7839B /* LadderUITests */,
-				AFF1C9892CEFE5AA00A2EEDA /* Frameworks */,
 				AF0A21992CEE901200D7839B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -96,13 +108,6 @@
 				AF0A21B22CEE901300D7839B /* LadderUITests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		AFF1C9892CEFE5AA00A2EEDA /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

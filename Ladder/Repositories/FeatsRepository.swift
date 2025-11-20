@@ -11,6 +11,16 @@ import Creed_Lite
 import Dependencies
 
 @MainActor
+protocol FeatsRepositoryProtocol {
+    func getMonthlyFeats() async throws -> MonthlyFeats
+    func getUserBestScore(for featId: Feat.Id) async -> UserBestScore?
+    func saveUserBestScore(featId: Feat.Id, repCount: Int, duration: TimeInterval) async throws
+    func getFeatCompletions() async -> [FeatCompletion]
+    func saveFeatCompletion(featId: Feat.Id, repCount: Int, duration: TimeInterval) async throws
+    func clearCache() async throws
+}
+
+@MainActor
 final class FeatsRepository: FeatsRepositoryProtocol {
     @Dependency(\.featsClient) private var featsClient
 
