@@ -37,7 +37,10 @@ struct HistoryView: View {
             .navigationTitle("History & PRs")
             .navigationBarTitleDisplayMode(.large)
             .task {
-                await interactor.loadHistory()
+                // Only load if we don't have data yet
+                if interactor.featHistories.isEmpty && !interactor.isLoading {
+                    await interactor.loadHistory()
+                }
             }
             .refreshable {
                 await interactor.refreshHistory()
@@ -126,8 +129,22 @@ struct FeatHistoryCard: View {
                             image
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                        case .empty, .failure:
-                            Color.gray.opacity(0.2)
+                        case .empty:
+                            ZStack {
+                                Color.gray.opacity(0.2)
+                                ProgressView()
+                                    .tint(.white)
+                            }
+                        case .failure(let error):
+                            ZStack {
+                                Color.gray.opacity(0.2)
+                                Image(systemName: "photo")
+                                    .foregroundStyle(.gray)
+                                    .font(.title3)
+                            }
+                            .onAppear {
+                                print("Failed to load image: \(featHistory.imageURLString), error: \(error)")
+                            }
                         @unknown default:
                             Color.gray.opacity(0.2)
                         }

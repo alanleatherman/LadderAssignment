@@ -30,7 +30,10 @@ struct FeatsHomeView: View {
             }
         }
         .task {
-            await interactor.loadMonthlyFeats()
+            // Only load if we don't have data yet
+            if interactor.monthlyFeats == nil && !interactor.isLoading {
+                await interactor.loadMonthlyFeats()
+            }
         }
         .onChange(of: appState.completionTimestamp) { _, _ in
             Task {
