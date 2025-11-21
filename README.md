@@ -64,29 +64,27 @@ The bonus History page was added to give users a way to track their personal rec
 
 ### Prioritization Strategy
 
-**Phase 1: Core User Flow (Days 1-2)**
+**Phase 1: Core User Flow (Day 1)**
 1. Feats home feed with video cards
 2. Feat detail view with statistics
 3. Test execution with timer and rep counter
 4. Basic data persistence
 
-**Phase 2: Polish & Features (Days 3-4)**
+**Phase 2: Polish & Features (Day 2)**
 1. Leaderboard implementation
 2. Loading states and error handling
 3. Animations and haptics
 4. Top performers display
 
-**Phase 3: Optimization (Days 5-6)**
+**Phase 3: Optimization & testing (Days 3)**
 1. Custom image caching solution
 2. Tab state persistence
 3. Performance profiling and improvements
 4. Pull-to-refresh UX refinement
-
-**Phase 4: Bonus & Testing (Days 7+)**
-1. History & PRs page (bonus feature)
-2. Comprehensive unit tests
-3. Code cleanup and documentation
-4. README and architecture documentation
+5. History & PRs page (bonus feature)
+6. Comprehensive unit tests
+7. Code cleanup and documentation
+8. README and architecture documentation
 
 ### What I'd Do With More Time
 - Implement proper error recovery and retry mechanisms
