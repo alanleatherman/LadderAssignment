@@ -123,31 +123,21 @@ struct FeatHistoryCard: View {
                 }
             } label: {
                 HStack(spacing: 16) {
-                    AsyncImage(url: URL(string: featHistory.imageURLString)) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        case .empty:
-                            ZStack {
-                                Color.gray.opacity(0.2)
-                                ProgressView()
-                                    .tint(.white)
-                                    .scaleEffect(0.7)
-                            }
-                        case .failure:
-                            ZStack {
-                                Color.gray.opacity(0.2)
-                                Image(systemName: "photo")
-                                    .foregroundStyle(.gray)
-                                    .font(.title3)
-                            }
-                        @unknown default:
+                    CachedAsyncImage(
+                        url: URL(string: featHistory.imageURLString),
+                        size: .thumbnail
+                    ) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        ZStack {
                             Color.gray.opacity(0.2)
+                            ProgressView()
+                                .tint(.white)
+                                .scaleEffect(0.7)
                         }
                     }
-                    .id(featHistory.imageURLString) // Force refresh when URL changes
                     .frame(width: 60, height: 60)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
 

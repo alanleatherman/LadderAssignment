@@ -53,32 +53,24 @@ struct FeatCardView: View {
                         }
                     }
             } else {
-                AsyncImage(url: feat.imageURL, transaction: Transaction(animation: .easeInOut(duration: 0.3))) { phase in
-                    switch phase {
-                    case .empty:
-                        Color.gray.opacity(0.2)
-                            .overlay(
-                                ProgressView()
-                                    .tint(.white.opacity(0.7))
-                            )
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: geometry.size.width, height: geometry.size.height)
-                            .clipped()
-                            .transition(.opacity)
-                    case .failure:
-                        Color.gray.opacity(0.2)
-                            .overlay(
-                                Image(systemName: "photo")
-                                    .font(.largeTitle)
-                                    .foregroundStyle(.secondary)
-                            )
-                    @unknown default:
-                        Color.gray.opacity(0.2)
-                    }
+                CachedAsyncImage(
+                    url: feat.imageURL,
+                    size: .card
+                ) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
+                        .transition(.opacity)
+                } placeholder: {
+                    Color.gray.opacity(0.2)
+                        .overlay(
+                            ProgressView()
+                                .tint(.white.opacity(0.7))
+                        )
                 }
+                .animation(.easeInOut(duration: 0.3), value: player == nil)
                 .onAppear {
                     setupPlayer()
                 }

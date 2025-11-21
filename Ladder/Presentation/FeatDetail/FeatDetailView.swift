@@ -194,28 +194,22 @@ struct FeatDetailView: View {
     @ViewBuilder
     private func topPerformerAvatar(user: FeatUser) -> some View {
         VStack {
-            AsyncImage(url: user.imageURL, transaction: Transaction(animation: .easeInOut(duration: 0.3))) { phase in
-                switch phase {
-                case .empty:
-                    Circle()
-                        .fill(Color.gray.opacity(0.3))
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .transition(.scale(scale: 0.8).combined(with: .opacity))
-                case .failure:
-                    Circle()
-                        .fill(Color.gray.opacity(0.4))
-                        .overlay(
-                            Image(systemName: "person.fill")
-                                .font(.title2)
-                                .foregroundStyle(.white.opacity(0.6))
-                        )
-                @unknown default:
-                    Circle()
-                        .fill(Color.gray.opacity(0.3))
-                }
+            CachedAsyncImage(
+                url: user.imageURL,
+                size: .thumbnail
+            ) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .transition(.scale(scale: 0.8).combined(with: .opacity))
+            } placeholder: {
+                Circle()
+                    .fill(Color.gray.opacity(0.3))
+                    .overlay(
+                        Image(systemName: "person.fill")
+                            .font(.title2)
+                            .foregroundStyle(.white.opacity(0.6))
+                    )
             }
             .frame(width: 60, height: 60)
             .clipShape(Circle())

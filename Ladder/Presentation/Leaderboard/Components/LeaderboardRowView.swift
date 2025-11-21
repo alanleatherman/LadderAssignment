@@ -30,28 +30,22 @@ struct LeaderboardRowView: View {
                     .frame(width: 40, alignment: .trailing)
             }
 
-            AsyncImage(url: placement.imageURL, transaction: Transaction(animation: .easeInOut(duration: 0.3))) { phase in
-                switch phase {
-                case .empty:
-                    Circle()
-                        .fill(Color.gray.opacity(0.3))
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .transition(.scale(scale: 0.8).combined(with: .opacity))
-                case .failure:
-                    Circle()
-                        .fill(Color.gray.opacity(0.4))
-                        .overlay(
-                            Image(systemName: "person.fill")
-                                .font(.body)
-                                .foregroundStyle(.white.opacity(0.6))
-                        )
-                @unknown default:
-                    Circle()
-                        .fill(Color.gray.opacity(0.3))
-                }
+            CachedAsyncImage(
+                url: placement.imageURL,
+                size: .thumbnail
+            ) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .transition(.scale(scale: 0.8).combined(with: .opacity))
+            } placeholder: {
+                Circle()
+                    .fill(Color.gray.opacity(0.3))
+                    .overlay(
+                        Image(systemName: "person.fill")
+                            .font(.body)
+                            .foregroundStyle(.white.opacity(0.6))
+                    )
             }
             .frame(width: 44, height: 44)
             .clipShape(Circle())
