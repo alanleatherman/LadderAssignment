@@ -32,6 +32,7 @@ The bonus History page was added to give users a way to track their personal rec
 - Smooth video playback with proper lifecycle management
 - Breathing animation during countdown for better user guidance
 - Haptic feedback for milestone achievements
+- Comprehensive error handling with user-friendly messages and retry actions
 
 **3. Data Persistence**
 - History works across months by persisting cached feat data
@@ -56,6 +57,7 @@ The bonus History page was added to give users a way to track their personal rec
 - Building the custom `CachedAsyncImage` with automatic imgix URL optimization
 - Designing the caching strategy for feat metadata persistence
 - Implementing the breathing animation with SwiftUI animations
+- Designing typed error handling with user-friendly recovery actions
 
 **Easiest:**
 - Basic SwiftUI layouts and navigation
@@ -87,7 +89,6 @@ The bonus History page was added to give users a way to track their personal rec
 8. README and architecture documentation
 
 ### What I'd Do With More Time
-- Implement proper error recovery and retry mechanisms
 - Add offline mode with request queuing
 - Build analytics tracking infrastructure
 - Create more granular loading states
@@ -327,8 +328,38 @@ Benefits:
 - **Instant cache hits**: No re-downloading on tab switches
 - **Smooth scrolling**: Pre-sized images load instantly
 - **Automatic LRU eviction**: Oldest images removed when cache fills
+- **Inline error handling**: Failed images show retry button instead of silent failure
 
-#### 5. **Environment-based Dependency Injection**
+#### 5. **Comprehensive Error Handling**
+Domain-specific error types with user-friendly recovery actions:
+```swift
+enum NetworkError: LocalizedError {
+    case noInternet
+    case timeout
+    case serverError(Int)
+    case decodingError
+    case unknown(Error)
+
+    var icon: String { /* SF Symbol for each error type */ }
+    var canRetry: Bool { /* Whether retry is possible */ }
+    var recoverySuggestion: String? { /* User-friendly guidance */ }
+}
+```
+
+Features:
+- **Typed error mapping**: URLError → NetworkError → FeatsError
+- **User-friendly ErrorView**: Shows appropriate icons, messages, and recovery actions
+- **Retry mechanisms**: "Try Again" button for retryable errors
+- **Smart recovery actions**: "Open Settings" for no internet errors
+- **Inline image errors**: Failed image loads show retry UI instead of silent failure
+
+Error Flow:
+1. Repository catches URLError/DecodingError
+2. Maps to NetworkError with appropriate type
+3. Interactor wraps in domain-specific FeatsError
+4. ErrorView displays user-friendly UI with recovery actions
+
+#### 6. **Environment-based Dependency Injection**
 ```swift
 @Environment(\.container) private var container
 @Environment(\.appState) private var appState
@@ -391,6 +422,7 @@ Ladder/
 │   ├── AppContainer.swift           # DI container
 │   ├── AppEnvironment.swift         # Environment setup
 │   ├── AppState.swift               # App-wide observable state
+│   ├── NetworkError.swift           # Typed network errors
 │   ├── Models/                      # SwiftData models
 │   ├── Repositories/                # Data access layer
 │   └── Extensions/                  # Swift extensions
