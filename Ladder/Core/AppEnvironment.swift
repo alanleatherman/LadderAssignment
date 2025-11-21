@@ -37,6 +37,8 @@ struct AppEnvironment {
 
 extension AppEnvironment {
     static func bootstrap(modelContext: ModelContext, _ optionOverride: AppEnvironment.Option? = nil) -> AppEnvironment {
+        configureURLCache()
+
         let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
 
         // If tests are running, force test environment
@@ -79,5 +81,17 @@ extension AppEnvironment {
             option: .production,
             appContainer: .create(with: modelContext)
         )
+    }
+
+    // MARK: - URLCache Configuration
+
+    private static func configureURLCache() {
+        let memoryCapacity = 50 * 1024 * 1024 // 50 MB in-memory cache
+        let diskCapacity = 100 * 1024 * 1024 // 100 MB disk cache
+        let urlCache = URLCache(
+            memoryCapacity: memoryCapacity,
+            diskCapacity: diskCapacity
+        )
+        URLCache.shared = urlCache
     }
 }
