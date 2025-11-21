@@ -52,7 +52,7 @@ final class FeatsInteractor: FeatsInteractorProtocol {
             completedFeatIds.removeAll()
             await loadUserData()
         } catch {
-            self.error = .loadFailed(error)
+            self.error = FeatsError.from(error)
         }
     }
 
@@ -81,15 +81,32 @@ final class FeatsInteractor: FeatsInteractorProtocol {
 }
 
 enum FeatsError: LocalizedError {
-    case loadFailed(Error)
+    case network(NetworkError)
     case notFound
-    
+
     var errorDescription: String? {
         switch self {
-        case .loadFailed:
-            return "Unable to load challenges. Pull to refresh."
+        case .network(let netError):
+            return netError.localizedDescription
         case .notFound:
             return "Challenge not found."
         }
+    }
+
+    var recoverySuggestion: String? {
+        switch self {
+        case .network(let netError):
+            return netError.recoverySuggestion
+        case .notFound:
+            return "This challenge may have been removed."
+        }
+    }
+
+    // Convert any error to FeatsError
+    static func from(_ error: Error) -> FeatsError {
+        if let networkError = error as? NetworkError {
+            return .network(networkError)
+        }
+        return .network(.unknown(error))
     }
 }

@@ -34,15 +34,29 @@ final class FeatsRepository: FeatsRepositoryProtocol {
     // MARK: - Monthly Feats
 
     func getMonthlyFeats() async throws -> MonthlyFeats {
-        // Fetch fresh data from network
-        // Note: We can't cache the full MonthlyFeats because it's not Codable (from Creed_Lite)
-        // For now, always fetch fresh. Individual feats are cached for reference.
-        let monthlyFeats = try await featsClient.listMonthlyFeats()
+        do {
+            // Fetch fresh data from network
+            let monthlyFeats = try await featsClient.listMonthlyFeats()
 
-        // Cache individual feats for reference/history
-        try await cacheIndividualFeats(monthlyFeats)
+            // Cache individual feats for reference/history
+            try await cacheIndividualFeats(monthlyFeats)
 
-        return monthlyFeats
+            return monthlyFeats
+        } catch let urlError as URLError {
+            // Map URLError to NetworkError
+            switch urlError.code {
+            case .notConnectedToInternet, .networkConnectionLost:
+                throw NetworkError.noInternet
+            case .timedOut:
+                throw NetworkError.timeout
+            default:
+                throw NetworkError.unknown(urlError)
+            }
+        } catch _ as DecodingError {
+            throw NetworkError.decodingError
+        } catch {
+            throw NetworkError.unknown(error)
+        }
     }
 
     private func cacheIndividualFeats(_ monthlyFeats: MonthlyFeats) async throws {

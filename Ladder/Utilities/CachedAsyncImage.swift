@@ -16,6 +16,7 @@ struct CachedAsyncImage<Content: View, Placeholder: View>: View {
 
     @State private var image: UIImage?
     @State private var isLoading = false
+    @State private var loadError: Error?
 
     enum ImageSize {
         case thumbnail // 200x200
@@ -45,6 +46,22 @@ struct CachedAsyncImage<Content: View, Placeholder: View>: View {
         Group {
             if let image = image {
                 content(Image(uiImage: image))
+            } else if loadError != nil {
+                VStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .foregroundStyle(.orange)
+                        .font(.title3)
+                    Button {
+                        loadError = nil
+                        Task { await loadImage() }
+                    } label: {
+                        Label("Retry", systemImage: "arrow.clockwise")
+                            .font(.caption)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 placeholder()
                     .task {
@@ -79,9 +96,10 @@ struct CachedAsyncImage<Content: View, Placeholder: View>: View {
 
             if let downloadedImage = UIImage(data: data) {
                 self.image = downloadedImage
+                self.loadError = nil
             }
         } catch {
-            // Silently fail - placeholder will remain
+            self.loadError = error
         }
     }
 
