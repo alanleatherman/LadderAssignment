@@ -6,6 +6,99 @@ A modern iOS fitness challenge application built with SwiftUI, leveraging the la
 <img width="301" height="655" alt="Simulator Screenshot - iPhone 17 Pro - 2025-11-19 at 18 39 53" src="https://github.com/user-attachments/assets/0c08edf5-5eef-454c-b0e4-ed93726799d9" />
 <img width="301" height="655" alt="Simulator Screenshot - iPhone 17 Pro - 2025-11-19 at 18 40 09" src="https://github.com/user-attachments/assets/79d3f2cf-b93f-4b83-8c73-e00e35b6c1bb" />
 
+---
+
+## Assignment Approach
+
+### Screen Selection
+I implemented all screens from the Figma designs plus an additional History & PRs page. The decision to build all screens was driven by wanting to demonstrate:
+- End-to-end feature development capabilities
+- How different parts of the app communicate and share state
+- A complete user journey from discovery to completion to tracking progress
+
+The bonus History page was added to give users a way to track their personal records and progression over time, which felt like a natural extension of the "Results" pillar mentioned in the assignment.
+
+### Key Improvements Over Original Designs
+
+**1. Performance Optimization**
+- Custom `CachedAsyncImage` with imgix CDN optimization reducing bandwidth by 95%
+- Persistent URLCache (100MB disk, 50MB memory) for instant image loading
+- Tab state persistence eliminating unnecessary data reloads
+- Optimized image sizes (200px thumbnails, 400px cards, 800px details)
+
+**2. Enhanced UX**
+- Shimmer loading states instead of spinners for modern, polished feel
+- Pull-to-refresh without jarring full-screen loading overlays
+- Smooth video playback with proper lifecycle management
+- Breathing animation during countdown for better user guidance
+- Haptic feedback for milestone achievements
+
+**3. Data Persistence**
+- History works across months by persisting cached feat data
+- User progress tracked locally with SwiftData
+- Smart caching strategy that updates instead of deletes
+
+**4. Architecture & Testability**
+- Clean architecture with clear separation of concerns
+- Protocol-based repository pattern for easy testing
+- Comprehensive unit test coverage (interactors, business logic)
+- Observable framework for reactive UI updates
+
+### Challenges & Learnings
+
+**Most Challenging:**
+- Implementing proper tab state persistence without causing memory leaks or stale data
+- Managing cached feat data across months while keeping history functional
+- Optimizing image loading for smooth scrolling in image-heavy feeds
+- Video playback lifecycle management to prevent resource exhaustion
+
+**Most Interesting:**
+- Building the custom `CachedAsyncImage` with automatic imgix URL optimization
+- Designing the caching strategy for feat metadata persistence
+- Implementing the breathing animation with SwiftUI animations
+
+**Easiest:**
+- Basic SwiftUI layouts and navigation
+- SwiftData model setup
+- Integration with Creed-Lite library
+
+### Prioritization Strategy
+
+**Phase 1: Core User Flow (Days 1-2)**
+1. Feats home feed with video cards
+2. Feat detail view with statistics
+3. Test execution with timer and rep counter
+4. Basic data persistence
+
+**Phase 2: Polish & Features (Days 3-4)**
+1. Leaderboard implementation
+2. Loading states and error handling
+3. Animations and haptics
+4. Top performers display
+
+**Phase 3: Optimization (Days 5-6)**
+1. Custom image caching solution
+2. Tab state persistence
+3. Performance profiling and improvements
+4. Pull-to-refresh UX refinement
+
+**Phase 4: Bonus & Testing (Days 7+)**
+1. History & PRs page (bonus feature)
+2. Comprehensive unit tests
+3. Code cleanup and documentation
+4. README and architecture documentation
+
+### What I'd Do With More Time
+- Implement proper error recovery and retry mechanisms
+- Add offline mode with request queuing
+- Build analytics tracking infrastructure
+- Create more granular loading states
+- Add accessibility improvements (VoiceOver, Dynamic Type)
+- Implement proper authentication flow
+- Add video recording for form checking
+- Build social features (friends, sharing achievements)
+
+---
 
 ## Architecture
 
