@@ -25,16 +25,6 @@
 		AF0A21A82CEE901300D7839B /* LadderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LadderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		FF9113A02ECEBD1A00120FCF /* Exceptions for "LadderTests" folder in "LadderTests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Ladder.xctestplan,
-			);
-			target = AF0A21A72CEE901300D7839B /* LadderTests */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AF0A219A2CEE901200D7839B /* Ladder */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -43,9 +33,6 @@
 		};
 		AF0A21AB2CEE901300D7839B /* LadderTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				FF9113A02ECEBD1A00120FCF /* Exceptions for "LadderTests" folder in "LadderTests" target */,
-			);
 			path = LadderTests;
 			sourceTree = "<group>";
 		};

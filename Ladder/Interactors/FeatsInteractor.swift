@@ -48,6 +48,8 @@ final class FeatsInteractor: FeatsInteractorProtocol {
 
         do {
             monthlyFeats = try await repository.getMonthlyFeats()
+            userBestScores.removeAll()
+            completedFeatIds.removeAll()
             await loadUserData()
         } catch {
             self.error = .loadFailed(error)
@@ -56,6 +58,7 @@ final class FeatsInteractor: FeatsInteractorProtocol {
 
     func loadUserData() async {
         guard let feats = monthlyFeats?.feats else { return }
+
         for feat in feats {
             if let bestScore = await repository.getUserBestScore(for: feat.id) {
                 userBestScores[feat.id.rawValue] = bestScore

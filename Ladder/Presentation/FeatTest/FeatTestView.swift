@@ -11,6 +11,9 @@ struct FeatTestView: View {
     @Environment(\.container) private var container
     @Environment(\.dismiss) private var dismiss
 
+    @State private var showConfetti = false
+    @State private var previousBest: Int?
+
     private var interactor: FeatTestInteractorProtocol {
         container.interactors.featTest
     }
@@ -19,8 +22,16 @@ struct FeatTestView: View {
         container.interactors.leaderboard
     }
 
+    private var featsInteractor: FeatsInteractorProtocol {
+        container.interactors.feats
+    }
+
     private var hapticEngine: HapticEngine {
         container.hapticEngine
+    }
+
+    private var repCounterAnimator: RepCounterAnimator {
+        container.repCounterAnimator
     }
 
     var body: some View {
@@ -55,6 +66,10 @@ struct FeatTestView: View {
                     controlsView
                         .padding(.bottom, 40)
                 }
+
+                if showConfetti {
+                    ConfettiView()
+                }
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -70,6 +85,10 @@ struct FeatTestView: View {
             }
             .onAppear {
                 hapticEngine.prepare()
+                repCounterAnimator.reset()
+                if let feat = interactor.feat {
+                    previousBest = featsInteractor.getUserBest(for: feat.id)?.repCount
+                }
             }
         }
     }
@@ -191,8 +210,30 @@ struct FeatTestView: View {
             }
 
             VStack(spacing: 12) {
-                Text("Test Complete!")
-                    .font(.title.bold())
+                let isNewPR = if let prev = previousBest {
+                    repCount > prev
+                } else {
+                    repCount > 0
+                }
+
+                if isNewPR {
+                    Text("NEW PR! 🎉")
+                        .font(.title.bold())
+                        .foregroundStyle(Color.ladderPrimary)
+
+                    if let prev = previousBest {
+                        Text("Previous PR: \(prev) reps")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text("Your first completion!")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                } else {
+                    Text("Test Complete!")
+                        .font(.title.bold())
+                }
 
                 if let rank = userRank {
                     HStack(spacing: 4) {
@@ -220,7 +261,28 @@ struct FeatTestView: View {
             }
         }
         .onAppear {
-            hapticEngine.trigger(.testComplete)
+            let isNewPR = if let prev = previousBest {
+                repCount > prev
+            } else {
+                repCount > 0
+            }
+
+            if isNewPR {
+                hapticEngine.trigger(.prBeaten)
+                withAnimation {
+                    showConfetti = true
+                }
+
+                Task {
+                    try? await Task.sleep(for: .seconds(4))
+                    withAnimation {
+                        showConfetti = false
+                    }
+                }
+            } else {
+                hapticEngine.trigger(.testComplete)
+            }
+
             if let feat = interactor.feat {
                 Task {
                     await leaderboardInteractor.loadLeaderboard(for: feat.id)

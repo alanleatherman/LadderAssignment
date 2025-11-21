@@ -16,6 +16,7 @@ final class HapticEngine {
         case repCounted
         case milestone(Int)
         case testComplete
+        case prBeaten
         case challengeStarted
         case buttonTap
     }
@@ -41,6 +42,23 @@ final class HapticEngine {
 
         case .testComplete:
             notification.notificationOccurred(.success)
+
+        case .prBeaten:
+            Task {
+                await notification.notificationOccurred(.success)
+
+                try? await Task.sleep(for: .milliseconds(80))
+                await UIImpactFeedbackGenerator(style: .heavy).impactOccurred(intensity: 1.0)
+
+                try? await Task.sleep(for: .milliseconds(80))
+                await UIImpactFeedbackGenerator(style: .heavy).impactOccurred(intensity: 1.0)
+
+                try? await Task.sleep(for: .milliseconds(120))
+                await UIImpactFeedbackGenerator(style: .medium).impactOccurred(intensity: 0.8)
+
+                try? await Task.sleep(for: .milliseconds(80))
+                await UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.6)
+            }
 
         case .challengeStarted:
             selection.selectionChanged()

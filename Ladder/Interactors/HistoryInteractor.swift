@@ -58,16 +58,15 @@ final class HistoryInteractor: HistoryInteractorProtocol {
         defer { isLoading = false }
 
         do {
-            // Fetch all completions
             let completions = await repository.getFeatCompletions()
 
-            // Group completions by featId
+            guard !completions.isEmpty else {
+                featHistories = []
+                return
+            }
+
             let groupedCompletions = Dictionary(grouping: completions, by: { $0.featId })
-
-            // Fetch monthly feats to get feat details
             let monthlyFeats = try await repository.getMonthlyFeats()
-
-            // Build FeatHistory objects
             var histories: [FeatHistory] = []
 
             for (featId, attempts) in groupedCompletions {
@@ -87,7 +86,6 @@ final class HistoryInteractor: HistoryInteractorProtocol {
                 }
             }
 
-            // Sort by most recent attempt
             featHistories = histories.sorted { lhs, rhs in
                 guard let lhsDate = lhs.attempts.first?.completedAt,
                       let rhsDate = rhs.attempts.first?.completedAt else {

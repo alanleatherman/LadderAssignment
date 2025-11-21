@@ -42,4 +42,10 @@ final class RepCounterAnimator {
     var currentDisplayValue: Int {
         Int(displayValue.rounded())
     }
+
+    func reset() {
+        displayValue = 0
+        velocity = 0
+        targetValue = 0
+    }
 }
