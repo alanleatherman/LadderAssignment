@@ -23,7 +23,7 @@ struct HistoryView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if interactor.isLoading {
+                if interactor.isLoading && interactor.featHistories.isEmpty {
                     ProgressView()
                         .frame(maxHeight: .infinity)
                 } else if let error = interactor.error {
@@ -134,21 +134,20 @@ struct FeatHistoryCard: View {
                                 Color.gray.opacity(0.2)
                                 ProgressView()
                                     .tint(.white)
+                                    .scaleEffect(0.7)
                             }
-                        case .failure(let error):
+                        case .failure:
                             ZStack {
                                 Color.gray.opacity(0.2)
                                 Image(systemName: "photo")
                                     .foregroundStyle(.gray)
                                     .font(.title3)
                             }
-                            .onAppear {
-                                print("Failed to load image: \(featHistory.imageURLString), error: \(error)")
-                            }
                         @unknown default:
                             Color.gray.opacity(0.2)
                         }
                     }
+                    .id(featHistory.imageURLString) // Force refresh when URL changes
                     .frame(width: 60, height: 60)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
 

@@ -70,7 +70,6 @@ final class HistoryInteractor: HistoryInteractorProtocol {
             var histories: [FeatHistory] = []
 
             for (featId, attempts) in groupedCompletions {
-                // Find the feat details
                 if let feat = monthlyFeats.feats.first(where: { $0.id.rawValue == featId }) {
                     let bestScore = await repository.getUserBestScore(for: feat.id)
 
@@ -79,6 +78,18 @@ final class HistoryInteractor: HistoryInteractorProtocol {
                         featName: feat.name,
                         movement: feat.movement,
                         imageURLString: feat.imageURL.absoluteString,
+                        attempts: attempts.sorted { $0.completedAt > $1.completedAt },
+                        personalRecord: bestScore
+                    )
+                    histories.append(history)
+                } else if let cachedFeat = await repository.getCachedFeat(for: featId) {
+                    let bestScore = await repository.getUserBestScore(for: Feat.Id(rawValue: featId))
+
+                    let history = FeatHistory(
+                        id: featId,
+                        featName: cachedFeat.name,
+                        movement: cachedFeat.movement,
+                        imageURLString: cachedFeat.imageURLString,
                         attempts: attempts.sorted { $0.completedAt > $1.completedAt },
                         personalRecord: bestScore
                     )

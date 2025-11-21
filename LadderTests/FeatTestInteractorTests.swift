@@ -194,6 +194,10 @@ class MockFeatsRepository: FeatsRepositoryProtocol {
         // Mock implementation - do nothing
     }
 
+    func getCachedFeat(for featId: String) async -> CachedFeat? {
+        return nil
+    }
+
     func clearCache() async throws {
         // Mock implementation - do nothing
     }

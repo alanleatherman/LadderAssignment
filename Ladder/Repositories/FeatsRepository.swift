@@ -17,6 +17,7 @@ protocol FeatsRepositoryProtocol {
     func saveUserBestScore(featId: Feat.Id, repCount: Int, duration: TimeInterval) async throws
     func getFeatCompletions() async -> [FeatCompletion]
     func saveFeatCompletion(featId: Feat.Id, repCount: Int, duration: TimeInterval) async throws
+    func getCachedFeat(for featId: String) async -> CachedFeat?
     func clearCache() async throws
 }
 
@@ -45,20 +46,36 @@ final class FeatsRepository: FeatsRepositoryProtocol {
     }
 
     private func cacheIndividualFeats(_ monthlyFeats: MonthlyFeats) async throws {
-        try modelContext.delete(model: CachedFeat.self)
-
-        // Cache individual feats for reference
+        // Don't delete all cached feats - we need them for history from previous months
+        // Instead, update existing or insert new ones
         for feat in monthlyFeats.feats {
-            let cached = CachedFeat(
-                id: feat.id.rawValue,
-                name: feat.name,
-                description: feat.description,
-                imageURLString: feat.imageURL.absoluteString,
-                videoURLString: feat.videoURL.absoluteString,
-                movement: feat.movement,
-                completionCount: feat.completionCount
+            let featIdString = feat.id.rawValue
+            let descriptor = FetchDescriptor<CachedFeat>(
+                predicate: #Predicate { $0.id == featIdString }
             )
-            modelContext.insert(cached)
+
+            let existingCached = try? modelContext.fetch(descriptor).first
+
+            if let existing = existingCached {
+                existing.name = feat.name
+                existing.featDescription = feat.description
+                existing.imageURLString = feat.imageURL.absoluteString
+                existing.videoURLString = feat.videoURL.absoluteString
+                existing.movement = feat.movement
+                existing.completionCount = feat.completionCount
+                existing.cachedAt = Date()
+            } else {
+                let cached = CachedFeat(
+                    id: feat.id.rawValue,
+                    name: feat.name,
+                    description: feat.description,
+                    imageURLString: feat.imageURL.absoluteString,
+                    videoURLString: feat.videoURL.absoluteString,
+                    movement: feat.movement,
+                    completionCount: feat.completionCount
+                )
+                modelContext.insert(cached)
+            }
         }
 
         try modelContext.save()
@@ -117,6 +134,17 @@ final class FeatsRepository: FeatsRepositoryProtocol {
 
         // Also update user's best score
         try await saveUserBestScore(featId: featId, repCount: repCount, duration: duration)
+    }
+
+    // MARK: - Cached Feats
+
+    func getCachedFeat(for featId: String) async -> CachedFeat? {
+        let descriptor = FetchDescriptor<CachedFeat>(
+            predicate: #Predicate { $0.id == featId }
+        )
+
+        let results = try? modelContext.fetch(descriptor)
+        return results?.first
     }
 
     // MARK: - Cache Management

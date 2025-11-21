@@ -139,6 +139,10 @@ private final class MockRepository: FeatsRepositoryProtocol {
 
     func saveFeatCompletion(featId: Feat.Id, repCount: Int, duration: TimeInterval) async throws {}
 
+    func getCachedFeat(for featId: String) async -> CachedFeat? {
+        return nil
+    }
+
     func clearCache() async throws {}
 }
 

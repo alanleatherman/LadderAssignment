@@ -186,6 +186,10 @@ class MockHistoryTestRepository: FeatsRepositoryProtocol {
         completions.append(completion)
     }
 
+    func getCachedFeat(for featId: String) async -> CachedFeat? {
+        return nil
+    }
+
     func clearCache() async throws {
         // Mock implementation
     }
